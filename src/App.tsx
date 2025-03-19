@@ -17,7 +17,9 @@ import Assignments from "./pages/lecturer/Assignments";
 import CreateAssignment from "./pages/lecturer/CreateAssignment";
 import StudentDashboard from "./pages/student/Dashboard";
 import StudentCourses from "./pages/student/Courses";
+import StudentCourse from "./pages/student/Course";
 import StudentAssignment from "./pages/student/Assignment";
+import AIAssistantPage from "./pages/shared/AIAssistant";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,8 +47,13 @@ const App = () => (
             {/* Student Routes */}
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/student/courses" element={<StudentCourses />} />
+            <Route path="/student/courses/:id" element={<StudentCourse />} />
             <Route path="/student/assignments/:id" element={<StudentAssignment />} />
             <Route path="/student/profile" element={<Profile />} />
+            <Route path="/student/ai-assistant" element={<AIAssistantPage />} />
+            
+            {/* Shared Routes */}
+            <Route path="/ai-assistant" element={<AIAssistantPage />} />
             
             {/* Catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />

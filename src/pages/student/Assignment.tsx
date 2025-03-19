@@ -1,54 +1,56 @@
 
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/ui/layout/Header';
 import Footer from '@/components/ui/layout/Footer';
 import AIAssistant from '@/components/shared/AIAssistant';
+import { mockUsers, mockAssignments, mockSubmissions, getCourseById } from '@/utils/mockData';
+import { Assignment, Submission, RubricItem } from '@/types';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { motion } from 'framer-motion';
+import { Label } from '@/components/ui/label';
 import { 
-  ArrowLeft, 
-  Calendar, 
   FileText, 
+  Calendar, 
+  Clock, 
+  CheckCircle, 
+  AlertTriangle, 
   Upload, 
-  Check, 
-  AlertTriangle,
-  Search,
-  Info,
+  Download,
+  BookOpen,
+  MessageSquare,
   Brain
 } from 'lucide-react';
-import { 
-  mockUsers, 
-  getAssignmentById, 
-  getCourseById, 
-  getSubmissionById
-} from '@/utils/mockData';
 
-const Assignment = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+const StudentAssignment = () => {
+  const { id } = useParams();
+  const [activeTab, setActiveTab] = useState('instructions');
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [submissionText, setSubmissionText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Using mock data - in a real app, this would come from authentication and API
+  // Using mock data - in a real app, this would come from API
   const student = mockUsers.find(user => user.role === 'student');
-  const assignment = id ? getAssignmentById(id) : undefined;
-  const course = assignment ? getCourseById(assignment.courseId) : undefined;
-  const submission = id && student 
-    ? assignment?.submissions.find(s => s.studentId === student.id)
+  const assignment = mockAssignments.find(a => a.id === id);
+  const studentSubmission = student && assignment 
+    ? mockSubmissions.find(s => s.assignmentId === assignment.id && s.studentId === student.id)
     : undefined;
   
-  const [comment, setComment] = useState('');
-  const [files, setFiles] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [plagiarismChecking, setPlagiarismChecking] = useState(false);
-  
-  if (!assignment || !course) {
+  if (!assignment) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header 
@@ -57,92 +59,61 @@ const Assignment = () => {
           userName={student?.name}
           userAvatar={student?.profileImage}
         />
-        
-        <main className="flex-1 py-24 bg-gray-50">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-2xl font-bold mb-4">Assignment not found</h1>
-            <Button 
-              onClick={() => navigate('/student/dashboard')}
-              className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Button>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-2">Assignment not found</h1>
+            <p className="text-muted-foreground mb-4">The assignment you're looking for doesn't exist or you don't have access to it.</p>
+            <Link to="/student/dashboard">
+              <Button>Back to Dashboard</Button>
+            </Link>
           </div>
         </main>
-        
         <Footer />
       </div>
     );
   }
   
+  const course = getCourseById(assignment.courseId);
+  
+  // Check assignment status
+  const today = new Date();
+  const dueDate = new Date(assignment.dueDate);
+  const isPastDue = dueDate < today;
+  const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  
+  const isSubmitted = !!studentSubmission;
+  const isGraded = studentSubmission?.status === 'graded';
+  
+  // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setFiles(prev => [...prev, ...newFiles]);
+    const files = e.target.files;
+    if (files) {
+      const fileArray = Array.from(files);
+      setSelectedFiles(prev => [...prev, ...fileArray]);
     }
   };
   
+  // Remove a selected file
   const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
   
-  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setComment(e.target.value);
-  };
-  
-  const checkPlagiarism = () => {
-    if (files.length === 0) {
-      toast({
-        title: "No files to check",
-        description: "Please upload at least one file to check for plagiarism",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setPlagiarismChecking(true);
-    
-    // Simulate plagiarism check
-    setTimeout(() => {
-      setPlagiarismChecking(false);
-      
-      toast({
-        title: "Plagiarism Check Complete",
-        description: "Your submission has been checked and appears to be original.",
-      });
-    }, 2000);
-  };
-  
-  const handleSubmit = () => {
-    if (files.length === 0) {
-      toast({
-        title: "Missing files",
-        description: "Please upload at least one file for your submission",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+  // Submit assignment
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
     
     // Simulate submission
     setTimeout(() => {
       setIsSubmitting(false);
-      
-      toast({
-        title: "Submission successful",
-        description: "Your assignment has been submitted successfully",
-      });
-      
-      navigate('/student/dashboard');
+      // In a real app, we would actually submit the files and text
+      alert('Assignment submitted successfully!');
+      // Reset the form
+      setSelectedFiles([]);
+      setSubmissionText('');
+      setFileInputKey(Date.now());
     }, 1500);
   };
-  
-  // Check if assignment is past due
-  const today = new Date();
-  const dueDate = new Date(assignment.dueDate);
-  const isPastDue = dueDate < today;
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -155,299 +126,432 @@ const Assignment = () => {
       
       <main className="flex-1 py-24 bg-gray-50">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mb-8"
-          >
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/student/dashboard')}
-              className="mb-4 gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Button>
-            
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {/* Assignment Header */}
+          <div className="mb-8">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="outline" className="bg-rubrxix-blue/10 text-rubrxix-blue border-rubrxix-blue/20">
-                    {course.code}
+                  {course && (
+                    <>
+                      <Link to="/student/courses" className="text-sm text-rubrxix-blue hover:underline">
+                        Courses
+                      </Link>
+                      <span className="text-sm text-muted-foreground">/</span>
+                      <Link to={`/student/courses/${course.id}`} className="text-sm text-rubrxix-blue hover:underline">
+                        {course.title}
+                      </Link>
+                      <span className="text-sm text-muted-foreground">/</span>
+                    </>
+                  )}
+                  <span className="text-sm font-medium truncate">{assignment.title}</span>
+                </div>
+                <h1 className="text-3xl font-bold">{assignment.title}</h1>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="secondary" className="bg-blue-100 border-0 text-blue-700">
+                    {course?.code || 'Course'}
                   </Badge>
-                  {isPastDue && !submission && (
-                    <Badge variant="destructive" className="flex items-center gap-1">
-                      <AlertTriangle className="h-3 w-3" />
+                  
+                  {!isSubmitted && !isPastDue && (
+                    <Badge className="bg-orange-100 text-orange-700 border-0">
+                      {daysUntilDue === 0 
+                        ? 'Due today' 
+                        : `Due in ${daysUntilDue} ${daysUntilDue === 1 ? 'day' : 'days'}`}
+                    </Badge>
+                  )}
+                  
+                  {!isSubmitted && isPastDue && (
+                    <Badge variant="destructive">
                       Overdue
                     </Badge>
                   )}
-                  {submission && (
-                    <Badge variant="outline" className={`flex items-center gap-1 ${
-                      submission.status === 'graded' 
-                        ? 'bg-green-100 text-green-500 border-green-200' 
-                        : 'bg-blue-100 text-rubrxix-blue border-blue-200'
-                    }`}>
-                      <Check className="h-3 w-3" />
-                      {submission.status === 'graded' ? 'Graded' : 'Submitted'}
+                  
+                  {isSubmitted && !isGraded && (
+                    <Badge variant="secondary" className="bg-blue-100 text-rubrxix-blue border-0">
+                      Submitted
+                    </Badge>
+                  )}
+                  
+                  {isGraded && (
+                    <Badge variant="secondary" className="bg-green-100 text-green-500 border-0">
+                      Graded
                     </Badge>
                   )}
                 </div>
-                <h1 className="text-3xl font-bold">{assignment.title}</h1>
-                <p className="text-muted-foreground">{course.title}</p>
               </div>
               
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Due: {dueDate.toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span>Points: {assignment.totalPoints}</span>
-                </div>
+              <div>
+                {isGraded && studentSubmission?.grade !== undefined && (
+                  <div className="bg-white rounded-md border p-3 text-center">
+                    <p className="text-sm text-muted-foreground mb-1">Your Grade</p>
+                    <div className="text-2xl font-bold">
+                      {studentSubmission.grade} / {assignment.totalPoints}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="lg:col-span-2 space-y-6"
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Assignment Description</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="whitespace-pre-line">{assignment.description}</p>
-                </CardContent>
-              </Card>
-              
-              {!submission ? (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Submit Your Work</CardTitle>
-                    <CardDescription>
-                      Upload your files and submit your assignment
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                      <Input
-                        type="file"
-                        multiple
-                        onChange={handleFileChange}
-                        className="hidden"
-                        id="file-upload"
-                      />
-                      <label
-                        htmlFor="file-upload"
-                        className="flex flex-col items-center justify-center cursor-pointer"
-                      >
-                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                        <p className="text-lg font-medium mb-1">Upload Files</p>
-                        <p className="text-sm text-muted-foreground">
-                          Drag and drop or click to select files
-                        </p>
-                      </label>
-                    </div>
-                    
-                    {files.length > 0 && (
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Uploaded Files</h3>
-                        <ul className="border rounded-lg divide-y">
-                          {files.map((file, index) => (
-                            <li key={index} className="p-3 flex items-center justify-between">
-                              <div className="flex items-center">
-                                <FileText className="h-5 w-5 text-muted-foreground mr-2" />
-                                <span className="text-sm">{file.name}</span>
+            
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                      <div>
+                        <h3 className="text-xs uppercase text-muted-foreground font-medium mb-1">Due Date</h3>
+                        <div className="flex items-center gap-2">
+                          <div className="h-6 w-6 rounded-full bg-orange-100 flex items-center justify-center">
+                            <Calendar className="h-3 w-3 text-orange-600" />
+                          </div>
+                          <span className="text-sm">{dueDate.toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xs uppercase text-muted-foreground font-medium mb-1">Points</h3>
+                        <div className="flex items-center gap-2">
+                          <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center">
+                            <CheckCircle className="h-3 w-3 text-green-600" />
+                          </div>
+                          <span className="text-sm">{assignment.totalPoints}</span>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xs uppercase text-muted-foreground font-medium mb-1">Status</h3>
+                        <div className="flex items-center gap-2">
+                          {isGraded ? (
+                            <>
+                              <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center">
+                                <CheckCircle className="h-3 w-3 text-green-600" />
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeFile(index)}
-                                className="h-8 w-8 text-destructive"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M18 6L6 18"></path>
-                                  <path d="M6 6l12 12"></path>
-                                </svg>
-                              </Button>
-                            </li>
-                          ))}
+                              <span className="text-sm">Graded</span>
+                            </>
+                          ) : isSubmitted ? (
+                            <>
+                              <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
+                                <CheckCircle className="h-3 w-3 text-blue-600" />
+                              </div>
+                              <span className="text-sm">Submitted</span>
+                            </>
+                          ) : isPastDue ? (
+                            <>
+                              <div className="h-6 w-6 rounded-full bg-red-100 flex items-center justify-center">
+                                <AlertTriangle className="h-3 w-3 text-red-600" />
+                              </div>
+                              <span className="text-sm">Overdue</span>
+                            </>
+                          ) : (
+                            <>
+                              <div className="h-6 w-6 rounded-full bg-orange-100 flex items-center justify-center">
+                                <Clock className="h-3 w-3 text-orange-600" />
+                              </div>
+                              <span className="text-sm">Pending</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Assignment Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <Tabs defaultValue="instructions" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="instructions">Instructions</TabsTrigger>
+                  <TabsTrigger value="rubric">Rubric</TabsTrigger>
+                  <TabsTrigger value="submission">Submission</TabsTrigger>
+                  <TabsTrigger value="feedback" disabled={!isGraded}>Feedback</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="instructions" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Assignment Instructions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="prose max-w-none">
+                        <p>{assignment.description}</p>
+                        
+                        <h3 className="text-lg font-medium mt-6 mb-2">Requirements</h3>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Complete all sections of the assignment</li>
+                          <li>Follow the formatting guidelines</li>
+                          <li>Submit your work before the deadline</li>
+                          <li>Properly cite all sources used</li>
                         </ul>
                         
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            onClick={checkPlagiarism}
-                            disabled={plagiarismChecking}
-                            className="gap-2"
-                          >
-                            {plagiarismChecking ? (
-                              <>
-                                <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                Checking...
-                              </>
-                            ) : (
-                              <>
-                                <Search className="h-4 w-4" />
-                                Check Plagiarism
-                              </>
-                            )}
-                          </Button>
-                        </div>
+                        <h3 className="text-lg font-medium mt-6 mb-2">Submission Guidelines</h3>
+                        <p>Please submit your work in one of the following formats:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>PDF document (.pdf)</li>
+                          <li>Word document (.docx)</li>
+                          <li>Text file (.txt)</li>
+                        </ul>
                       </div>
-                    )}
-                    
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-medium">Additional Comments</h3>
-                      <Textarea
-                        placeholder="Add any comments about your submission (optional)"
-                        value={comment}
-                        onChange={handleCommentChange}
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <Button
-                        onClick={handleSubmit}
-                        disabled={isSubmitting || files.length === 0}
-                        className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                            Submitting...
-                          </>
-                        ) : (
-                          <>
-                            <FileText className="h-4 w-4" />
-                            Submit Assignment
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Your Submission</CardTitle>
-                    <CardDescription>
-                      Submitted on {new Date(submission.submittedAt).toLocaleDateString()} at {new Date(submission.submittedAt).toLocaleTimeString()}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-medium">Submitted Files</h3>
-                      <ul className="border rounded-lg divide-y">
-                        {submission.files.map((file) => (
-                          <li key={file.id} className="p-3 flex items-center">
-                            <FileText className="h-5 w-5 text-muted-foreground mr-2" />
-                            <span className="text-sm">{file.name}</span>
-                          </li>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Resources</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <Button variant="outline" className="w-full justify-start">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download Assignment Template
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <BookOpen className="mr-2 h-4 w-4" />
+                          Reference Materials
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="rubric" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Grading Rubric</CardTitle>
+                      <CardDescription>This is how your assignment will be evaluated</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        {assignment.rubric.map((rubricItem: RubricItem) => (
+                          <div key={rubricItem.id} className="border rounded-md p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <h3 className="font-medium">{rubricItem.title}</h3>
+                              <Badge variant="outline">{rubricItem.points} pts</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-4">{rubricItem.description}</p>
+                            
+                            <div className="space-y-3">
+                              {rubricItem.criteria.map((criteria) => (
+                                <div key={criteria.id} className="flex justify-between text-sm">
+                                  <span>{criteria.description}</span>
+                                  <span className="font-medium">{criteria.points} pts</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         ))}
-                      </ul>
-                    </div>
-                    
-                    {submission.status === 'graded' && (
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Feedback</h3>
-                        <div className="border rounded-lg p-4 bg-muted/30">
-                          <p className="whitespace-pre-line">{submission.feedback}</p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                          <div className="flex items-center gap-2">
-                            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                              <Check className="h-5 w-5 text-green-500" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Your Grade</p>
-                              <p className="text-xs text-muted-foreground">Final score</p>
-                            </div>
-                          </div>
-                          <div className="text-2xl font-bold">
-                            {submission.grade} / {assignment.totalPoints}
-                          </div>
-                        </div>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-            </motion.div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="submission" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Submit Your Work</CardTitle>
+                      <CardDescription>
+                        {isSubmitted 
+                          ? "You have already submitted this assignment. You can view your submission below."
+                          : "Upload your files and add any comments for your submission."}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isSubmitted ? (
+                        <div className="space-y-6">
+                          <div>
+                            <h3 className="text-sm font-medium mb-2">Submitted Files</h3>
+                            <div className="space-y-2">
+                              {studentSubmission?.files.map((file) => (
+                                <div key={file.id} className="flex items-center justify-between border rounded-md p-3">
+                                  <div className="flex items-center">
+                                    <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                                    <span className="text-sm">{file.name}</span>
+                                  </div>
+                                  <Button variant="ghost" size="sm">
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h3 className="text-sm font-medium mb-2">Submission Date</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {studentSubmission?.submittedAt.toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                          <div>
+                            <Label htmlFor="files">Upload Files</Label>
+                            <div className="mt-2 border-2 border-dashed rounded-md p-6 text-center">
+                              <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                              <p className="text-sm text-muted-foreground mb-2">
+                                Drag and drop your files here, or click to browse
+                              </p>
+                              <input
+                                id="files"
+                                type="file"
+                                key={fileInputKey}
+                                className="hidden"
+                                onChange={handleFileChange}
+                                multiple
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => document.getElementById('files')?.click()}
+                                className="mt-2"
+                              >
+                                Browse Files
+                              </Button>
+                            </div>
+                            
+                            {selectedFiles.length > 0 && (
+                              <div className="mt-4 space-y-2">
+                                <h3 className="text-sm font-medium">Selected Files</h3>
+                                {selectedFiles.map((file, index) => (
+                                  <div key={index} className="flex items-center justify-between border rounded-md p-3">
+                                    <div className="flex items-center">
+                                      <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                                      <span className="text-sm">{file.name}</span>
+                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => removeFile(index)}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="comments">Comments (Optional)</Label>
+                            <Textarea
+                              id="comments"
+                              placeholder="Add any comments or notes for your instructor..."
+                              className="mt-2"
+                              value={submissionText}
+                              onChange={(e) => setSubmissionText(e.target.value)}
+                            />
+                          </div>
+                          
+                          <Button 
+                            type="submit" 
+                            disabled={selectedFiles.length === 0 || isSubmitting}
+                            className="w-full bg-rubrxix-blue hover:bg-rubrxix-blue/90"
+                          >
+                            {isSubmitting ? "Submitting..." : "Submit Assignment"}
+                          </Button>
+                        </form>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="feedback" className="space-y-6">
+                  {isGraded ? (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Instructor Feedback</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-6">
+                          <div>
+                            <h3 className="text-sm font-medium mb-2">Grade</h3>
+                            <div className="flex items-center gap-2">
+                              <div className="text-xl font-bold">
+                                {studentSubmission?.grade} / {assignment.totalPoints}
+                              </div>
+                              <Progress 
+                                value={(studentSubmission?.grade || 0) / assignment.totalPoints * 100} 
+                                className="h-2 w-32" 
+                              />
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h3 className="text-sm font-medium mb-2">Comments</h3>
+                            <div className="border rounded-md p-4 bg-muted/30">
+                              <p className="text-sm whitespace-pre-line">
+                                {studentSubmission?.feedback || "No feedback provided."}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h3 className="text-sm font-medium mb-2">Rubric Evaluation</h3>
+                            <div className="space-y-3">
+                              {assignment.rubric.map((rubricItem) => (
+                                <div key={rubricItem.id} className="border rounded-md p-3">
+                                  <div className="flex justify-between">
+                                    <h4 className="text-sm font-medium">{rubricItem.title}</h4>
+                                    <span className="text-sm">
+                                      {Math.floor(Math.random() * (rubricItem.points + 1))} / {rubricItem.points}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Card>
+                      <CardContent className="flex flex-col items-center justify-center text-center py-12">
+                        <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                          <MessageSquare className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <CardTitle className="text-lg mb-2">No Feedback Yet</CardTitle>
+                        <CardDescription>
+                          Your instructor hasn't provided feedback on this assignment yet.
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              className="space-y-6"
-            >
-              <Card>
+            <div>
+              <Card className="sticky top-24">
                 <CardHeader>
-                  <CardTitle>Rubric</CardTitle>
-                  <CardDescription>
-                    Grading criteria for this assignment
-                  </CardDescription>
+                  <CardTitle>Need Help?</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {assignment.rubric.map((rubricItem) => (
-                    <div key={rubricItem.id} className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium">{rubricItem.title}</h3>
-                        <span className="text-sm">{rubricItem.points} pts</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{rubricItem.description}</p>
-                      
-                      <div className="ml-4 space-y-1">
-                        {rubricItem.criteria.map((criteria) => (
-                          <div key={criteria.id} className="flex justify-between text-sm">
-                            <span>• {criteria.description}</span>
-                            <span>{criteria.points} pts</span>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <Separator className="my-2" />
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Info className="h-5 w-5 text-muted-foreground" />
-                    <CardTitle className="text-base">Need Help?</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    If you have questions about this assignment, you can use our AI Assistant for guidance.
+                  <p className="text-sm text-muted-foreground">
+                    Our AI assistant can help you understand the assignment requirements and guide you through the process.
                   </p>
-                  <Button 
-                    className="w-full gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90"
-                    onClick={() => {
-                      // This would normally trigger the AI Assistant with context
-                      // For now, we'll just simulate it
-                      const aiAssistantElement = document.querySelector('[aria-label="AI Assistant"]');
-                      if (aiAssistantElement) {
-                        (aiAssistantElement as HTMLElement).click();
-                      }
-                    }}
-                  >
+                  
+                  <Button className="w-full gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
                     <Brain className="h-4 w-4" />
                     Ask AI Assistant
                   </Button>
+                  
+                  <div className="border-t pt-4">
+                    <h3 className="text-sm font-medium mb-2">Other Resources</h3>
+                    <div className="space-y-2">
+                      <Button variant="outline" className="w-full justify-start" size="sm">
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        Contact Instructor
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start" size="sm">
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        View Course Materials
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           </div>
         </div>
       </main>
@@ -458,4 +562,4 @@ const Assignment = () => {
   );
 };
 
-export default Assignment;
+export default StudentAssignment;
