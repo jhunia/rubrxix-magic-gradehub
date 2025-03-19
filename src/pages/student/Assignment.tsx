@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/ui/layout/Header';
@@ -32,7 +31,8 @@ import {
   Download,
   BookOpen,
   MessageSquare,
-  Brain
+  Brain,
+  X
 } from 'lucide-react';
 
 const StudentAssignment = () => {
@@ -43,7 +43,6 @@ const StudentAssignment = () => {
   const [submissionText, setSubmissionText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Using mock data - in a real app, this would come from API
   const student = mockUsers.find(user => user.role === 'student');
   const assignment = mockAssignments.find(a => a.id === id);
   const studentSubmission = student && assignment 
@@ -75,7 +74,6 @@ const StudentAssignment = () => {
   
   const course = getCourseById(assignment.courseId);
   
-  // Check assignment status
   const today = new Date();
   const dueDate = new Date(assignment.dueDate);
   const isPastDue = dueDate < today;
@@ -84,7 +82,6 @@ const StudentAssignment = () => {
   const isSubmitted = !!studentSubmission;
   const isGraded = studentSubmission?.status === 'graded';
   
-  // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
@@ -93,22 +90,17 @@ const StudentAssignment = () => {
     }
   };
   
-  // Remove a selected file
   const removeFile = (index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
   
-  // Submit assignment
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate submission
     setTimeout(() => {
       setIsSubmitting(false);
-      // In a real app, we would actually submit the files and text
       alert('Assignment submitted successfully!');
-      // Reset the form
       setSelectedFiles([]);
       setSubmissionText('');
       setFileInputKey(Date.now());
@@ -126,7 +118,6 @@ const StudentAssignment = () => {
       
       <main className="flex-1 py-24 bg-gray-50">
         <div className="container mx-auto px-4">
-          {/* Assignment Header */}
           <div className="mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <div>
@@ -257,7 +248,6 @@ const StudentAssignment = () => {
             </Card>
           </div>
           
-          {/* Assignment Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <Tabs defaultValue="instructions" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
