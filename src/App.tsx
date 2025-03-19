@@ -11,6 +11,8 @@ import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import LecturerDashboard from "./pages/lecturer/Dashboard";
+import Courses from "./pages/lecturer/Courses";
+import Assignments from "./pages/lecturer/Assignments";
 import CreateAssignment from "./pages/lecturer/CreateAssignment";
 import StudentDashboard from "./pages/student/Dashboard";
 import StudentAssignment from "./pages/student/Assignment";
@@ -32,6 +34,8 @@ const App = () => (
             
             {/* Lecturer Routes */}
             <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
+            <Route path="/lecturer/courses" element={<Courses />} />
+            <Route path="/lecturer/assignments" element={<Assignments />} />
             <Route path="/lecturer/assignments/new" element={<CreateAssignment />} />
             
             {/* Student Routes */}
