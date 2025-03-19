@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, Book, GraduationCap, LogOut, Menu, X } from 'lucide-react';
+import { User, Book, GraduationCap, LogOut, Menu, X, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -52,6 +52,11 @@ const Header: React.FC<HeaderProps> = ({
   const logoStyle = isTransparent
     ? 'bg-white/10 backdrop-blur-md border border-white/30 shadow-sm'
     : 'bg-white/80 backdrop-blur-md border border-black/5 shadow-sm';
+
+  const getProfilePath = () => {
+    if (!isAuthenticated) return '/profile';
+    return userRole === 'lecturer' ? '/lecturer/profile' : '/student/profile';
+  };
 
   return (
     <header 
@@ -106,9 +111,6 @@ const Header: React.FC<HeaderProps> = ({
                     <Link to="/student/courses" className={getLinkStyle('/student/courses')}>
                       Courses
                     </Link>
-                    <Link to="/student/assignments" className={getLinkStyle('/student/assignments')}>
-                      Assignments
-                    </Link>
                   </>
                 )}
               </nav>
@@ -128,8 +130,11 @@ const Header: React.FC<HeaderProps> = ({
                 <DropdownMenuContent align="end" className="w-56 animate-scale-in">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                    <User className="h-4 w-4" />
+                  <DropdownMenuItem 
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => navigate(getProfilePath())}
+                  >
+                    <UserCircle className="h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
@@ -217,6 +222,12 @@ const Header: React.FC<HeaderProps> = ({
                           >
                             Assignments
                           </Link>
+                          <Link 
+                            to="/lecturer/profile" 
+                            className="px-2 py-2 hover:bg-muted rounded transition-colors"
+                          >
+                            Profile
+                          </Link>
                         </>
                       ) : (
                         <>
@@ -233,10 +244,10 @@ const Header: React.FC<HeaderProps> = ({
                             Courses
                           </Link>
                           <Link 
-                            to="/student/assignments" 
+                            to="/student/profile" 
                             className="px-2 py-2 hover:bg-muted rounded transition-colors"
                           >
-                            Assignments
+                            Profile
                           </Link>
                         </>
                       )}
