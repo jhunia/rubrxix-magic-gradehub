@@ -20,7 +20,8 @@ import {
   Check, 
   AlertTriangle,
   Search,
-  Info
+  Info,
+  Brain
 } from 'lucide-react';
 import { 
   mockUsers, 
