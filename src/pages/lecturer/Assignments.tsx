@@ -44,6 +44,7 @@ import { format } from 'date-fns';
 import { Assignment } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/components/ui/use-toast';
+import { navigate } from 'react-router-dom';
 
 const Assignments = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -156,10 +157,7 @@ const Assignments = () => {
   };
 
   const handleViewAssignment = (assignmentId: string) => {
-    toast({
-      title: "Assignment Details",
-      description: "Viewing assignment details will be implemented in a future update.",
-    });
+    navigate(`/lecturer/assignments/${assignmentId}`);
   };
 
   const handleViewPlagiarism = (assignmentId: string) => {
@@ -411,9 +409,9 @@ const Assignments = () => {
                                 <Button 
                                   variant="outline" 
                                   size="sm"
-                                  onClick={() => handleViewAssignment(assignment.id)}
+                                  asChild
                                 >
-                                  View Details
+                                  <Link to={`/lecturer/assignments/${assignment.id}`}>View Details</Link>
                                 </Button>
                                 {hasPlagiarism && (
                                   <Button 
@@ -531,8 +529,8 @@ const Assignments = () => {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-[160px]">
-                                  <DropdownMenuItem onClick={() => handleViewAssignment(assignment.id)}>
-                                    View Details
+                                  <DropdownMenuItem asChild>
+                                    <Link to={`/lecturer/assignments/${assignment.id}`}>View Details</Link>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem>Edit Assignment</DropdownMenuItem>
                                   <DropdownMenuItem>View Submissions</DropdownMenuItem>
@@ -578,4 +576,3 @@ const Assignments = () => {
 };
 
 export default Assignments;
-
