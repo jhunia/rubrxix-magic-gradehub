@@ -2,7 +2,7 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ExclamationTriangleIcon, HomeIcon, ArrowLeft } from "lucide-react";
+import { AlertTriangle, HomeIcon, ArrowLeft } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -29,7 +29,7 @@ const NotFound = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full px-4 py-8 bg-white shadow-lg rounded-lg text-center">
         <div className="mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-red-100 mb-6">
-          <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
+          <AlertTriangle className="h-8 w-8 text-red-600" />
         </div>
         
         <h1 className="text-5xl font-bold text-gray-900 mb-2">404</h1>
