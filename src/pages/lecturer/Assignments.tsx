@@ -751,247 +751,250 @@ const Assignments = () => {
               </div>
             </div>
 
-            <TabsContent value="calendar" className="mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="col-span-1 md:col-span-1">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Assignment Calendar</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Calendar
-                      mode="single"
-                      selected={selectedDay}
-                      onSelect={handleDaySelect}
-                      className="p-3 pointer-events-auto"
-                      modifiers={{
-                        withAssignments: assignmentDates
-                      }}
-                      modifiersStyles={{
-                        withAssignments: {
-                          backgroundColor: '#f0f9ff',
-                          borderRadius: '0',
-                          color: '#0369a1',
-                          fontWeight: 'bold'
-                        }
-                      }}
-                    />
-                  </CardContent>
-                </Card>
+            {/* Wrap these TabsContent components within a Tabs component */}
+            <Tabs value={selectedView}>
+              <TabsContent value="calendar" className="mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card className="col-span-1 md:col-span-1">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Assignment Calendar</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Calendar
+                        mode="single"
+                        selected={selectedDay}
+                        onSelect={handleDaySelect}
+                        className="p-3 pointer-events-auto"
+                        modifiers={{
+                          withAssignments: assignmentDates
+                        }}
+                        modifiersStyles={{
+                          withAssignments: {
+                            backgroundColor: '#f0f9ff',
+                            borderRadius: '0',
+                            color: '#0369a1',
+                            fontWeight: 'bold'
+                          }
+                        }}
+                      />
+                    </CardContent>
+                  </Card>
 
-                <Card className="col-span-1 md:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="text-lg">
-                      {selectedDay 
-                        ? `Assignments Due on ${format(selectedDay, 'PPP')}` 
-                        : 'Select a Date to View Assignments'}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {dayAssignments.length > 0 ? (
-                      <div className="space-y-4">
-                        {dayAssignments.map(assignment => {
+                  <Card className="col-span-1 md:col-span-2">
+                    <CardHeader>
+                      <CardTitle className="text-lg">
+                        {selectedDay 
+                          ? `Assignments Due on ${format(selectedDay, 'PPP')}` 
+                          : 'Select a Date to View Assignments'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {dayAssignments.length > 0 ? (
+                        <div className="space-y-4">
+                          {dayAssignments.map(assignment => {
+                            const hasPlagiarism = assignment.submissions?.some(s => (s.plagiarismScore || 0) > 70);
+                            const hasPerfectScore = assignment.submissions?.some(s => s.grade === assignment.totalPoints);
+                            
+                            return (
+                              <div 
+                                key={assignment.id} 
+                                className="p-4 border rounded-md hover:bg-gray-50 transition-colors"
+                              >
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <h3 className="font-medium text-lg mb-1">{assignment.title}</h3>
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Badge variant="outline" className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-200">
+                                        {assignment.courseCode}
+                                      </Badge>
+                                      <span className="text-sm">{assignment.courseTitle}</span>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                      <div className="flex items-center gap-1">
+                                        <Users className="h-4 w-4" />
+                                        <span>{assignment.submissions?.length || 0} submissions</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <CheckCircle className="h-4 w-4" />
+                                        <span>{assignment.totalPoints} points</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-2">
+                                    {hasPlagiarism && (
+                                      <Badge variant="destructive" className="flex items-center gap-1">
+                                        <AlertTriangle className="h-3 w-3" />
+                                        Plagiarism Detected
+                                      </Badge>
+                                    )}
+                                    {hasPerfectScore && (
+                                      <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200">
+                                        Perfect Score
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex justify-end mt-4 gap-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => navigate(`/lecturer/assignments/${assignment.id}`)}
+                                  >
+                                    View Details
+                                  </Button>
+                                  {hasPlagiarism && (
+                                    <Button 
+                                      variant="destructive" 
+                                      size="sm"
+                                      onClick={() => handleViewPlagiarism(assignment.id)}
+                                    >
+                                      Review Plagiarism
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : selectedDay ? (
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                          <CalendarIcon className="h-12 w-12 text-muted-foreground/60 mb-4" />
+                          <h3 className="text-lg font-medium mb-1">No Assignments Due</h3>
+                          <p className="text-muted-foreground">
+                            There are no assignments due on {format(selectedDay, 'PPP')}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                          <CalendarIcon className="h-12 w-12 text-muted-foreground/60 mb-4" />
+                          <h3 className="text-lg font-medium mb-1">Select a Date</h3>
+                          <p className="text-muted-foreground">
+                            Click on a date in the calendar to view assignments due on that day
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="list" className="pt-2">
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Assignment</TableHead>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Due Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Submissions</TableHead>
+                        <TableHead className="w-[80px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sortedAssignments.length > 0 ? (
+                        sortedAssignments.map((assignment) => {
+                          const course = lecturerCourses.find(c => c.id === assignment.courseId);
+                          const isDue = new Date(assignment.dueDate) <= new Date();
+                          const submissionCount = assignment.submissions?.length || 0;
+                          const totalStudents = course?.enrolledStudents.length || 0;
                           const hasPlagiarism = assignment.submissions?.some(s => (s.plagiarismScore || 0) > 70);
                           const hasPerfectScore = assignment.submissions?.some(s => s.grade === assignment.totalPoints);
                           
                           return (
-                            <div 
-                              key={assignment.id} 
-                              className="p-4 border rounded-md hover:bg-gray-50 transition-colors"
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-medium text-lg mb-1">{assignment.title}</h3>
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Badge variant="outline" className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-200">
-                                      {assignment.courseCode}
-                                    </Badge>
-                                    <span className="text-sm">{assignment.courseTitle}</span>
-                                  </div>
-                                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                    <div className="flex items-center gap-1">
-                                      <Users className="h-4 w-4" />
-                                      <span>{assignment.submissions?.length || 0} submissions</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <CheckCircle className="h-4 w-4" />
-                                      <span>{assignment.totalPoints} points</span>
-                                    </div>
-                                  </div>
+                            <TableRow key={assignment.id}>
+                              <TableCell>
+                                <div className="font-medium">{assignment.title}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {assignment.published ? 'Published' : 'Draft'}
                                 </div>
-                                <div className="flex flex-col items-end gap-2">
-                                  {hasPlagiarism && (
-                                    <Badge variant="destructive" className="flex items-center gap-1">
-                                      <AlertTriangle className="h-3 w-3" />
-                                      Plagiarism Detected
-                                    </Badge>
-                                  )}
-                                  {hasPerfectScore && (
-                                    <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200">
-                                      Perfect Score
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex justify-end mt-4 gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => navigate(`/lecturer/assignments/${assignment.id}`)}
-                                >
-                                  View Details
-                                </Button>
                                 {hasPlagiarism && (
-                                  <Button 
-                                    variant="destructive" 
-                                    size="sm"
-                                    onClick={() => handleViewPlagiarism(assignment.id)}
-                                  >
-                                    Review Plagiarism
-                                  </Button>
+                                  <Badge variant="destructive" className="mt-1">
+                                    <AlertTriangle className="h-3 w-3 mr-1" />
+                                    Plagiarism
+                                  </Badge>
                                 )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : selectedDay ? (
-                      <div className="flex flex-col items-center justify-center py-8 text-center">
-                        <CalendarIcon className="h-12 w-12 text-muted-foreground/60 mb-4" />
-                        <h3 className="text-lg font-medium mb-1">No Assignments Due</h3>
-                        <p className="text-muted-foreground">
-                          There are no assignments due on {format(selectedDay, 'PPP')}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-8 text-center">
-                        <CalendarIcon className="h-12 w-12 text-muted-foreground/60 mb-4" />
-                        <h3 className="text-lg font-medium mb-1">Select a Date</h3>
-                        <p className="text-muted-foreground">
-                          Click on a date in the calendar to view assignments due on that day
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="list" className="pt-2">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Assignment</TableHead>
-                      <TableHead>Course</TableHead>
-                      <TableHead>Due Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Submissions</TableHead>
-                      <TableHead className="w-[80px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedAssignments.length > 0 ? (
-                      sortedAssignments.map((assignment) => {
-                        const course = lecturerCourses.find(c => c.id === assignment.courseId);
-                        const isDue = new Date(assignment.dueDate) <= new Date();
-                        const submissionCount = assignment.submissions?.length || 0;
-                        const totalStudents = course?.enrolledStudents.length || 0;
-                        const hasPlagiarism = assignment.submissions?.some(s => (s.plagiarismScore || 0) > 70);
-                        const hasPerfectScore = assignment.submissions?.some(s => s.grade === assignment.totalPoints);
-                        
-                        return (
-                          <TableRow key={assignment.id}>
-                            <TableCell>
-                              <div className="font-medium">{assignment.title}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {assignment.published ? 'Published' : 'Draft'}
-                              </div>
-                              {hasPlagiarism && (
-                                <Badge variant="destructive" className="mt-1">
-                                  <AlertTriangle className="h-3 w-3 mr-1" />
-                                  Plagiarism
-                                </Badge>
-                              )}
-                              {hasPerfectScore && (
-                                <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200 mt-1 ml-1">
-                                  Perfect Score
-                                </Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-200">
-                                  {assignment.courseCode}
-                                </Badge>
-                                <span className="text-sm">{assignment.courseTitle}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <div className={`h-2 w-2 rounded-full ${isDue ? 'bg-red-500' : 'bg-green-500'}`} />
-                                <span>
-                                  {new Date(assignment.dueDate).toLocaleDateString()}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {isDue ? (
-                                <Badge variant="outline" className="bg-red-50 hover:bg-red-50 text-red-700 border-red-200">Past Due</Badge>
-                              ) : (
-                                <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200">Open</Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span>{submissionCount}/{totalStudents}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">Open menu</span>
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-[160px]">
-                                  <DropdownMenuItem onClick={() => navigate(`/lecturer/assignments/${assignment.id}`)}>
-                                    View Details
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem>Edit Assignment</DropdownMenuItem>
-                                  <DropdownMenuItem>View Submissions</DropdownMenuItem>
-                                  {hasPlagiarism && (
-                                    <DropdownMenuItem 
-                                      className="text-red-600"
-                                      onClick={() => handleViewPlagiarism(assignment.id)}
-                                    >
-                                      Review Plagiarism
+                                {hasPerfectScore && (
+                                  <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200 mt-1 ml-1">
+                                    Perfect Score
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-200">
+                                    {assignment.courseCode}
+                                  </Badge>
+                                  <span className="text-sm">{assignment.courseTitle}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <div className={`h-2 w-2 rounded-full ${isDue ? 'bg-red-500' : 'bg-green-500'}`} />
+                                  <span>
+                                    {new Date(assignment.dueDate).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {isDue ? (
+                                  <Badge variant="outline" className="bg-red-50 hover:bg-red-50 text-red-700 border-red-200">Past Due</Badge>
+                                ) : (
+                                  <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200">Open</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span>{submissionCount}/{totalStudents}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                      <span className="sr-only">Open menu</span>
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-[160px]">
+                                    <DropdownMenuItem onClick={() => navigate(`/lecturer/assignments/${assignment.id}`)}>
+                                      View Details
                                     </DropdownMenuItem>
-                                  )}
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="h-24 text-center">
-                          <div className="flex flex-col items-center justify-center text-muted-foreground">
-                            <FileText className="h-10 w-10 mb-2 text-muted-foreground/60" />
-                            <p>No assignments found</p>
-                            <p className="text-sm">Try adjusting your search or filters</p>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
+                                    <DropdownMenuItem>Edit Assignment</DropdownMenuItem>
+                                    <DropdownMenuItem>View Submissions</DropdownMenuItem>
+                                    {hasPlagiarism && (
+                                      <DropdownMenuItem 
+                                        className="text-red-600"
+                                        onClick={() => handleViewPlagiarism(assignment.id)}
+                                      >
+                                        Review Plagiarism
+                                      </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-24 text-center">
+                            <div className="flex flex-col items-center justify-center text-muted-foreground">
+                              <FileText className="h-10 w-10 mb-2 text-muted-foreground/60" />
+                              <p>No assignments found</p>
+                              <p className="text-sm">Try adjusting your search or filters</p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </main>
