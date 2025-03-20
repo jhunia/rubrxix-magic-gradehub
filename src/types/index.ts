@@ -35,6 +35,9 @@ export interface Assignment {
   createdAt: Date;
   updatedAt: Date;
   published: boolean;
+  // Add the following properties to solve the type errors
+  courseCode?: string; // Optional because it might be derived from the course
+  courseTitle?: string; // Optional because it might be derived from the course
 }
 
 export interface RubricItem {

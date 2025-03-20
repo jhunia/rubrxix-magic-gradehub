@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -54,11 +53,9 @@ const Assignments = () => {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>();
   const [dayAssignments, setDayAssignments] = useState<Assignment[]>([]);
   
-  // Using mock data - in a real app, this would come from authentication and API
   const lecturer = mockUsers.find(user => user.role === 'lecturer');
   const lecturerCourses = lecturer ? getCoursesByLecturerId(lecturer.id) : [];
   
-  // Get all assignments from all courses
   const allAssignments = lecturerCourses.flatMap(course => 
     course.assignments.map(assignment => ({
       ...assignment,
@@ -67,9 +64,7 @@ const Assignments = () => {
     }))
   );
 
-  // Add mock plagiarism cases
   const enhancedAssignments = allAssignments.map((assignment, index) => {
-    // Add a high plagiarism score to the first assignment
     if (index === 0 && assignment.submissions && assignment.submissions.length > 0) {
       return {
         ...assignment,
@@ -78,7 +73,6 @@ const Assignments = () => {
         )
       };
     }
-    // Add a perfect score to the second assignment
     else if (index === 1 && assignment.submissions && assignment.submissions.length > 0) {
       return {
         ...assignment,
@@ -89,8 +83,7 @@ const Assignments = () => {
     }
     return assignment;
   });
-  
-  // Filter assignments based on search query and course filter
+
   const filteredAssignments = enhancedAssignments.filter(assignment => {
     const matchesSearch = 
       assignment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -101,19 +94,16 @@ const Assignments = () => {
     
     return matchesSearch && matchesCourse;
   });
-  
-  // Sort assignments by due date (most recent first)
+
   const sortedAssignments = [...filteredAssignments].sort((a, b) => 
     new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime()
   );
 
-  // Count assignments by status
   const dueCount = allAssignments.filter(a => new Date(a.dueDate) > new Date()).length;
   const pastDueCount = allAssignments.filter(a => new Date(a.dueDate) <= new Date()).length;
   const publishedCount = allAssignments.filter(a => a.published).length;
   const draftCount = allAssignments.filter(a => !a.published).length;
 
-  // Find assignments for the selected day in the calendar
   useEffect(() => {
     if (selectedDay) {
       const assignmentsOnDay = enhancedAssignments.filter(assignment => {
@@ -130,7 +120,6 @@ const Assignments = () => {
     }
   }, [selectedDay, enhancedAssignments]);
 
-  // Function to handle calendar day selection
   const handleDaySelect = (day: Date | undefined) => {
     setSelectedDay(day);
     if (day) {
@@ -156,7 +145,6 @@ const Assignments = () => {
     }
   };
 
-  // Find dates with assignments for calendar highlighting
   const assignmentDates = enhancedAssignments.map(a => new Date(a.dueDate));
 
   const isDayWithAssignment = (day: Date) => {
@@ -167,7 +155,6 @@ const Assignments = () => {
     );
   };
 
-  // Function to handle viewing assignment details
   const handleViewAssignment = (assignmentId: string) => {
     toast({
       title: "Assignment Details",
@@ -175,7 +162,6 @@ const Assignments = () => {
     });
   };
 
-  // Function to handle viewing submissions with plagiarism
   const handleViewPlagiarism = (assignmentId: string) => {
     const assignment = enhancedAssignments.find(a => a.id === assignmentId);
     if (assignment && assignment.submissions) {
@@ -362,9 +348,6 @@ const Assignments = () => {
                           color: '#0369a1',
                           fontWeight: 'bold'
                         }
-                      }}
-                      styles={{
-                        day_today: { color: '#0369a1', fontWeight: 'bold' }
                       }}
                     />
                   </CardContent>
@@ -595,3 +578,4 @@ const Assignments = () => {
 };
 
 export default Assignments;
+
