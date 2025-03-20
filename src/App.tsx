@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 
 // Pages
@@ -32,28 +32,42 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/profile" element={<Profile />} />
             
             {/* Lecturer Routes */}
-            <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
-            <Route path="/lecturer/courses" element={<Courses />} />
-            <Route path="/lecturer/assignments" element={<Assignments />} />
-            <Route path="/lecturer/assignments/new" element={<CreateAssignment />} />
-            <Route path="/lecturer/profile" element={<Profile />} />
+            <Route path="/lecturer">
+              <Route index element={<Navigate to="/lecturer/dashboard" replace />} />
+              <Route path="dashboard" element={<LecturerDashboard />} />
+              <Route path="courses" element={<Courses />} />
+              <Route path="courses/:courseId/assignments" element={<Assignments />} />
+              <Route path="assignments" element={<Assignments />} />
+              <Route path="assignments/new" element={<CreateAssignment />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
             
             {/* Student Routes */}
-            <Route path="/student/dashboard" element={<StudentDashboard />} />
-            <Route path="/student/courses" element={<StudentCourses />} />
-            <Route path="/student/courses/:id" element={<StudentCourse />} />
-            <Route path="/student/assignments/:id" element={<StudentAssignment />} />
-            <Route path="/student/profile" element={<Profile />} />
-            <Route path="/student/ai-assistant" element={<AIAssistantPage />} />
+            <Route path="/student">
+              <Route index element={<Navigate to="/student/dashboard" replace />} />
+              <Route path="dashboard" element={<StudentDashboard />} />
+              <Route path="courses" element={<StudentCourses />} />
+              <Route path="courses/:id" element={<StudentCourse />} />
+              <Route path="assignments/:id" element={<StudentAssignment />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="ai-assistant" element={<AIAssistantPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
             
             {/* Shared Routes */}
+            <Route path="/profile" element={<Profile />} />
             <Route path="/ai-assistant" element={<AIAssistantPage />} />
+            
+            {/* Redirect legacy paths to new structure */}
+            <Route path="/lecturer-dashboard" element={<Navigate to="/lecturer/dashboard" replace />} />
+            <Route path="/student-dashboard" element={<Navigate to="/student/dashboard" replace />} />
             
             {/* Catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />
