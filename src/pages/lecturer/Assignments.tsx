@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   PlusCircle, 
   Filter, 
@@ -44,7 +44,6 @@ import { format } from 'date-fns';
 import { Assignment } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/components/ui/use-toast';
-import { navigate } from 'react-router-dom';
 
 const Assignments = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +52,7 @@ const Assignments = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | undefined>();
   const [dayAssignments, setDayAssignments] = useState<Assignment[]>([]);
+  const navigate = useNavigate();
   
   const lecturer = mockUsers.find(user => user.role === 'lecturer');
   const lecturerCourses = lecturer ? getCoursesByLecturerId(lecturer.id) : [];
