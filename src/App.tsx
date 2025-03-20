@@ -14,7 +14,6 @@ import Profile from "./pages/Profile";
 import LecturerDashboard from "./pages/lecturer/Dashboard";
 import Courses from "./pages/lecturer/Courses";
 import Assignments from "./pages/lecturer/Assignments";
-import Assignment from "./pages/lecturer/Assignment";
 import CreateAssignment from "./pages/lecturer/CreateAssignment";
 import StudentDashboard from "./pages/student/Dashboard";
 import StudentCourses from "./pages/student/Courses";
@@ -45,7 +44,7 @@ const App = () => (
               <Route path="courses" element={<Courses />} />
               <Route path="courses/:courseId/assignments" element={<Assignments />} />
               <Route path="assignments" element={<Assignments />} />
-              <Route path="assignments/:id" element={<Assignment />} />
+              <Route path="assignments/:id" element={<Assignments />} />
               <Route path="assignments/new" element={<CreateAssignment />} />
               <Route path="profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
