@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex space-x-4">
               <a 
-                href="#" 
+                href="https://github.com/rubrxix" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-muted-foreground hover:text-rubrxix-blue transition-colors"
@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
                 <Github className="h-5 w-5" />
               </a>
               <a 
-                href="#" 
+                href="https://twitter.com/rubrxix" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-muted-foreground hover:text-rubrxix-blue transition-colors"
@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
                 <Twitter className="h-5 w-5" />
               </a>
               <a 
-                href="#" 
+                href="https://linkedin.com/company/rubrxix" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-muted-foreground hover:text-rubrxix-blue transition-colors"
@@ -87,9 +87,14 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/api" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <a 
+                  href="https://api.rubrxix.com" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-rubrxix-blue transition-colors"
+                >
                   API
-                </Link>
+                </a>
               </li>
               <li>
                 <Link to="/support" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
