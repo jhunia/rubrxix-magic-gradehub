@@ -72,7 +72,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <CardContent>
               <div className="flex items-center space-x-2">
                 <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center">
-                  <BookOpen className="h-5 w-5 text-rubrxix-blue" />
+                  <BookOpen className="h-5 w-5 text-rubrix-blue" />
                 </div>
                 <div className="text-2xl font-bold">{courses.length}</div>
               </div>
@@ -92,7 +92,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <CardContent>
               <div className="flex items-center space-x-2">
                 <div className="h-9 w-9 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-rubrxix-orange" />
+                  <Clock className="h-5 w-5 text-rubrix-orange" />
                 </div>
                 <div className="text-2xl font-bold">{upcomingAssignments.length}</div>
               </div>
@@ -153,7 +153,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
               <div className="flex items-center justify-between">
                 <CardTitle>Upcoming Assignments</CardTitle>
                 <Link to="/student/assignments">
-                  <Button variant="ghost" size="sm" className="text-rubrxix-blue">
+                  <Button variant="ghost" size="sm" className="text-rubrix-blue">
                     View All
                   </Button>
                 </Link>
@@ -231,7 +231,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
               
               <div className="pt-4 border-t">
                 <Link to="/student/ai-assistant">
-                  <Button className="w-full gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
+                  <Button className="w-full gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
                     <Brain className="h-4 w-4" />
                     Ask AI Assistant
                   </Button>
@@ -255,7 +255,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <div className="flex items-center justify-between">
               <CardTitle>Enrolled Courses</CardTitle>
               <Link to="/student/courses">
-                <Button variant="ghost" size="sm" className="text-rubrxix-blue">
+                <Button variant="ghost" size="sm" className="text-rubrix-blue">
                   View All
                 </Button>
               </Link>
@@ -275,7 +275,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 return (
                   <div 
                     key={course.id} 
-                    className="bg-muted/30 rounded-lg border p-4 hover:border-rubrxix-blue/30 hover:bg-rubrxix-blue/5 transition-colors"
+                    className="bg-muted/30 rounded-lg border p-4 hover:border-rubrix-blue/30 hover:bg-rubrix-blue/5 transition-colors"
                   >
                     <Link to={`/student/courses/${course.id}`} className="block">
                       <div className="flex justify-between items-start mb-2">

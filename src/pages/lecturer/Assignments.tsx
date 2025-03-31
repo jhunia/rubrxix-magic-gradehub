@@ -631,7 +631,7 @@ const Assignments = () => {
                 </TabsList>
               </Tabs>
               <Link to="/lecturer/assignments/new">
-                <Button className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
+                <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
                   <PlusCircle className="h-4 w-4" />
                   Create Assignment
                 </Button>
@@ -652,7 +652,7 @@ const Assignments = () => {
                 <CardContent>
                   <div className="flex items-center space-x-2">
                     <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-rubrxix-blue" />
+                      <FileText className="h-5 w-5 text-rubrix-blue" />
                     </div>
                     <div className="text-2xl font-bold">{allAssignments.length}</div>
                   </div>

@@ -81,7 +81,7 @@ const AIAssistant: React.FC = () => {
     }
     
     if (lowercaseInput.includes('hello') || lowercaseInput.includes('hi')) {
-      return "Hello! I'm your AI assistant for rubrxix. How can I help you with your courses, assignments, or any academic questions?";
+      return "Hello! I'm your AI assistant for rubrix. How can I help you with your courses, assignments, or any academic questions?";
     }
     
     // Default response
@@ -128,8 +128,8 @@ const AIAssistant: React.FC = () => {
             <Card className="shadow-medium border border-gray-200 max-h-[500px] flex flex-col">
               <CardHeader className="p-3 border-b flex flex-row items-center justify-between">
                 <div className="flex items-center">
-                  <div className="h-8 w-8 rounded-full bg-rubrxix-blue/10 flex items-center justify-center mr-2">
-                    <Brain className="h-4 w-4 text-rubrxix-blue" />
+                  <div className="h-8 w-8 rounded-full bg-rubrix-blue/10 flex items-center justify-center mr-2">
+                    <Brain className="h-4 w-4 text-rubrix-blue" />
                   </div>
                   <CardTitle className="text-base">AI Assistant</CardTitle>
                 </div>
@@ -152,7 +152,7 @@ const AIAssistant: React.FC = () => {
                       <div 
                         className={`max-w-[80%] px-4 py-2 rounded-lg ${
                           message.sender === 'user' 
-                            ? 'bg-rubrxix-blue text-white rounded-tr-none' 
+                            ? 'bg-rubrix-blue text-white rounded-tr-none' 
                             : 'bg-gray-100 rounded-tl-none'
                         }`}
                       >
@@ -187,7 +187,7 @@ const AIAssistant: React.FC = () => {
                   />
                   <Button 
                     onClick={sendMessage}
-                    className="ml-2 h-10 w-10 p-0 bg-rubrxix-blue hover:bg-rubrxix-blue/90"
+                    className="ml-2 h-10 w-10 p-0 bg-rubrix-blue hover:bg-rubrix-blue/90"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
@@ -201,7 +201,7 @@ const AIAssistant: React.FC = () => {
       <motion.button
         onClick={toggleChat}
         className={`fixed bottom-5 right-5 h-12 w-12 rounded-full ${
-          isOpen ? 'bg-gray-200 text-gray-700' : 'bg-rubrxix-blue text-white'
+          isOpen ? 'bg-gray-200 text-gray-700' : 'bg-rubrix-blue text-white'
         } flex items-center justify-center shadow-md hover:shadow-lg transition-all z-50`}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}

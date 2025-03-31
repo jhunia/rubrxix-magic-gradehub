@@ -12,8 +12,8 @@ const Hero: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-white pointer-events-none" />
       
       {/* Animated Circles */}
-      <div className="absolute top-20 left-10 w-64 h-64 bg-rubrxix-blue/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-rubrxix-orange/5 rounded-full blur-3xl" />
+      <div className="absolute top-20 left-10 w-64 h-64 bg-rubrix-blue/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-rubrix-orange/5 rounded-full blur-3xl" />
       
       <div className="container mx-auto px-4 pt-36 pb-24 relative z-10">
         <div className="flex flex-col items-center text-center mb-12">
@@ -23,7 +23,7 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm border border-gray-200/50 mb-6"
           >
-            <span className="bg-rubrxix-blue/10 text-rubrxix-blue text-xs font-medium px-3 py-1 rounded-full">New</span>
+            <span className="bg-rubrix-blue/10 text-rubrix-blue text-xs font-medium px-3 py-1 rounded-full">New</span>
             <span className="text-sm">Introducing AI-powered automatic grading</span>
           </motion.div>
           
@@ -33,7 +33,7 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4 md:mb-6 max-w-4xl"
           >
-            Reimagine grading with <span className="text-rubrxix-blue">rubrxix</span>
+            Reimagine grading with <span className="text-rubrix-blue">rubrix</span>
           </motion.h1>
           
           <motion.p 
@@ -52,7 +52,7 @@ const Hero: React.FC = () => {
             className="flex flex-col sm:flex-row gap-4"
           >
             <Link to="/sign-up">
-              <Button size="lg" className="rounded-full px-8 text-base font-medium bg-rubrxix-blue hover:bg-rubrxix-blue/90 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <Button size="lg" className="rounded-full px-8 text-base font-medium bg-rubrix-blue hover:bg-rubrix-blue/90 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
                 Get Started
               </Button>
             </Link>
@@ -86,7 +86,7 @@ const Hero: React.FC = () => {
               
               <div className="flex-1 flex">
                 <div className="w-64 bg-gray-50 border-r p-4">
-                  <div className="h-8 w-32 bg-rubrxix-blue/10 rounded-lg mb-4"></div>
+                  <div className="h-8 w-32 bg-rubrix-blue/10 rounded-lg mb-4"></div>
                   <div className="space-y-2">
                     <div className="h-6 w-full bg-gray-200 rounded"></div>
                     <div className="h-6 w-full bg-gray-200 rounded"></div>
@@ -96,7 +96,7 @@ const Hero: React.FC = () => {
                 </div>
                 
                 <div className="flex-1 p-4">
-                  <div className="h-10 w-48 bg-rubrxix-blue rounded-lg mb-6"></div>
+                  <div className="h-10 w-48 bg-rubrix-blue rounded-lg mb-6"></div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="h-32 bg-white rounded-lg border p-3">
                       <div className="h-5 w-24 bg-gray-200 rounded mb-2"></div>
@@ -136,19 +136,19 @@ const Hero: React.FC = () => {
           className="flex flex-wrap justify-center gap-4 mt-12"
         >
           <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200/50">
-            <CheckCircle className="w-4 h-4 text-rubrxix-blue" />
+            <CheckCircle className="w-4 h-4 text-rubrix-blue" />
             <span className="text-sm font-medium">AI-Assisted Grading</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200/50">
-            <CheckCircle className="w-4 h-4 text-rubrxix-blue" />
+            <CheckCircle className="w-4 h-4 text-rubrix-blue" />
             <span className="text-sm font-medium">Plagiarism Detection</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200/50">
-            <CheckCircle className="w-4 h-4 text-rubrxix-blue" />
+            <CheckCircle className="w-4 h-4 text-rubrix-blue" />
             <span className="text-sm font-medium">Interactive Rubrics</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200/50">
-            <CheckCircle className="w-4 h-4 text-rubrxix-blue" />
+            <CheckCircle className="w-4 h-4 text-rubrix-blue" />
             <span className="text-sm font-medium">Automated Feedback</span>
           </div>
         </motion.div>

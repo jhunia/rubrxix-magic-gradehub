@@ -292,7 +292,7 @@ const CourseCard = ({ course }: { course: Course }) => {
             <CardTitle>{course.title}</CardTitle>
             <CardDescription className="mt-1">{course.code}</CardDescription>
           </div>
-          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-rubrxix-blue/10 text-rubrxix-blue">
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-rubrix-blue/10 text-rubrix-blue">
             <BookOpen className="h-4 w-4" />
           </div>
         </div>

@@ -124,11 +124,11 @@ const StudentAssignment = () => {
                 <div className="flex items-center gap-2 mb-2">
                   {course && (
                     <>
-                      <Link to="/student/courses" className="text-sm text-rubrxix-blue hover:underline">
+                      <Link to="/student/courses" className="text-sm text-rubrix-blue hover:underline">
                         Courses
                       </Link>
                       <span className="text-sm text-muted-foreground">/</span>
-                      <Link to={`/student/courses/${course.id}`} className="text-sm text-rubrxix-blue hover:underline">
+                      <Link to={`/student/courses/${course.id}`} className="text-sm text-rubrix-blue hover:underline">
                         {course.title}
                       </Link>
                       <span className="text-sm text-muted-foreground">/</span>
@@ -157,7 +157,7 @@ const StudentAssignment = () => {
                   )}
                   
                   {isSubmitted && !isGraded && (
-                    <Badge variant="secondary" className="bg-blue-100 text-rubrxix-blue border-0">
+                    <Badge variant="secondary" className="bg-blue-100 text-rubrix-blue border-0">
                       Submitted
                     </Badge>
                   )}
@@ -436,7 +436,7 @@ const StudentAssignment = () => {
                           <Button 
                             type="submit" 
                             disabled={selectedFiles.length === 0 || isSubmitting}
-                            className="w-full bg-rubrxix-blue hover:bg-rubrxix-blue/90"
+                            className="w-full bg-rubrix-blue hover:bg-rubrix-blue/90"
                           >
                             {isSubmitting ? "Submitting..." : "Submit Assignment"}
                           </Button>
@@ -521,7 +521,7 @@ const StudentAssignment = () => {
                     Our AI assistant can help you understand the assignment requirements and guide you through the process.
                   </p>
                   
-                  <Button className="w-full gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
+                  <Button className="w-full gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
                     <Brain className="h-4 w-4" />
                     Ask AI Assistant
                   </Button>

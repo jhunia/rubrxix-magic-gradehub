@@ -63,7 +63,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				rubrxix: {
+				rubrix: {
 					blue: '#0A84FF',
 					orange: '#FF9500',
 					gray: '#F2F2F7',

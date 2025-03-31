@@ -44,8 +44,8 @@ const Header: React.FC<HeaderProps> = ({
     const isActive = location.pathname === path;
     return `relative px-3 py-2 transition-all duration-200 ease-in-out ${
       isActive 
-        ? 'text-rubrxix-blue font-medium' 
-        : 'text-foreground/80 hover:text-rubrxix-blue'
+        ? 'text-rubrix-blue font-medium' 
+        : 'text-foreground/80 hover:text-rubrix-blue'
     }`;
   };
 
@@ -71,8 +71,8 @@ const Header: React.FC<HeaderProps> = ({
           to="/" 
           className={`text-xl font-bold flex items-center gap-2 px-4 py-2 rounded-full ${logoStyle} transition-all duration-300 hover:scale-105`}
         >
-          <GraduationCap className="w-5 h-5 text-rubrxix-blue" />
-          <span className={isTransparent ? 'text-foreground' : 'text-foreground'}>rubrxix</span>
+          <GraduationCap className="w-5 h-5 text-rubrix-blue" />
+          <span className={isTransparent ? 'text-foreground' : 'text-foreground'}>rubrix</span>
         </Link>
         
         {/* Desktop Navigation */}
@@ -83,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({
                 Sign In
               </Link>
               <Link to="/sign-up">
-                <Button className="ml-4 bg-rubrxix-blue hover:bg-rubrxix-blue/90 text-white rounded-full px-6 shadow-sm transition-transform hover:scale-105">
+                <Button className="ml-4 bg-rubrix-blue hover:bg-rubrix-blue/90 text-white rounded-full px-6 shadow-sm transition-transform hover:scale-105">
                   Sign Up
                 </Button>
               </Link>
@@ -120,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({
                   <button className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-secondary transition-all duration-200">
                     <Avatar className="h-8 w-8 border border-muted">
                       <AvatarImage src={userAvatar} />
-                      <AvatarFallback className="bg-rubrxix-blue text-white">
+                      <AvatarFallback className="bg-rubrix-blue text-white">
                         {userName?.charAt(0) || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -167,8 +167,8 @@ const Header: React.FC<HeaderProps> = ({
               <div className="flex flex-col h-full">
                 <div className="flex justify-between items-center border-b pb-4">
                   <div className="flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5 text-rubrxix-blue" />
-                    <span className="font-bold">rubrxix</span>
+                    <GraduationCap className="w-5 h-5 text-rubrix-blue" />
+                    <span className="font-bold">rubrix</span>
                   </div>
                 </div>
                 <nav className="flex flex-col py-8 space-y-4">
@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({
                       <div className="flex items-center gap-3 px-2 py-3 border-b">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={userAvatar} />
-                          <AvatarFallback className="bg-rubrxix-blue text-white">
+                          <AvatarFallback className="bg-rubrix-blue text-white">
                             {userName?.charAt(0) || 'U'}
                           </AvatarFallback>
                         </Avatar>

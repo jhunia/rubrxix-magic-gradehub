@@ -36,13 +36,13 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({
     statusColor = "bg-green-100 text-green-500";
   } else if (isSubmitted) {
     statusIcon = <CheckCircle className="h-5 w-5" />;
-    statusColor = "bg-blue-100 text-rubrxix-blue";
+    statusColor = "bg-blue-100 text-rubrix-blue";
   } else if (isPastDue) {
     statusIcon = <AlertTriangle className="h-5 w-5" />;
     statusColor = "bg-red-100 text-red-500";
   } else {
     statusIcon = <Clock className="h-5 w-5" />;
-    statusColor = "bg-orange-100 text-rubrxix-orange";
+    statusColor = "bg-orange-100 text-rubrix-orange";
   }
   
   return (
@@ -90,7 +90,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({
             )}
             
             {isSubmitted && !isGraded && (
-              <Badge variant="secondary" className="bg-blue-100 text-rubrxix-blue border-0">
+              <Badge variant="secondary" className="bg-blue-100 text-rubrix-blue border-0">
                 Submitted
               </Badge>
             )}
@@ -106,7 +106,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({
                 <Button 
                   size="sm" 
                   variant={isSubmitted ? 'outline' : 'default'}
-                  className={!isSubmitted ? 'bg-rubrxix-blue hover:bg-rubrxix-blue/90' : ''}
+                  className={!isSubmitted ? 'bg-rubrix-blue hover:bg-rubrix-blue/90' : ''}
                 >
                   {isGraded 
                     ? 'View Feedback' 

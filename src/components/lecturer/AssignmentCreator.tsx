@@ -531,7 +531,7 @@ const AssignmentCreator: React.FC<AssignmentCreatorProps> = ({ courses }) => {
             </Button>
             <Button 
               type="submit" 
-              className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90"
+              className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90"
             >
               <Save className="h-4 w-4" />
               Create Assignment

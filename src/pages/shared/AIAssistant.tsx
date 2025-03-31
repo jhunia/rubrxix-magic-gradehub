@@ -81,7 +81,7 @@ const AIAssistantPage = () => {
     }
     
     if (lowercaseInput.includes('hello') || lowercaseInput.includes('hi')) {
-      return "Hello! I'm your AI assistant for rubrxix. How can I help you with your courses, assignments, or any academic questions?";
+      return "Hello! I'm your AI assistant for rubrix. How can I help you with your courses, assignments, or any academic questions?";
     }
     
     // Default response
@@ -141,8 +141,8 @@ const AIAssistantPage = () => {
       <main className="flex-1 py-24 bg-gray-50">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-8 text-center">
-            <div className="h-16 w-16 rounded-full bg-rubrxix-blue/10 flex items-center justify-center mx-auto mb-4">
-              <Brain className="h-8 w-8 text-rubrxix-blue" />
+            <div className="h-16 w-16 rounded-full bg-rubrix-blue/10 flex items-center justify-center mx-auto mb-4">
+              <Brain className="h-8 w-8 text-rubrix-blue" />
             </div>
             <h1 className="text-3xl font-bold mb-2">AI Academic Assistant</h1>
             <p className="text-muted-foreground max-w-lg mx-auto">
@@ -195,7 +195,7 @@ const AIAssistantPage = () => {
                         <div 
                           className={`max-w-[80%] px-4 py-3 rounded-lg ${
                             message.sender === 'user' 
-                              ? 'bg-rubrxix-blue text-white rounded-tr-none' 
+                              ? 'bg-rubrix-blue text-white rounded-tr-none' 
                               : 'bg-gray-100 rounded-tl-none'
                           }`}
                         >
@@ -233,7 +233,7 @@ const AIAssistantPage = () => {
                     />
                     <Button 
                       onClick={sendMessage}
-                      className="ml-2 h-10 w-10 p-0 bg-rubrxix-blue hover:bg-rubrxix-blue/90"
+                      className="ml-2 h-10 w-10 p-0 bg-rubrix-blue hover:bg-rubrix-blue/90"
                     >
                       <Send className="h-4 w-4" />
                     </Button>
@@ -253,8 +253,8 @@ const AIAssistantPage = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-rubrxix-blue/10 flex items-center justify-center mt-0.5">
-                        <Bot className="h-3 w-3 text-rubrxix-blue" />
+                      <div className="h-5 w-5 rounded-full bg-rubrix-blue/10 flex items-center justify-center mt-0.5">
+                        <Bot className="h-3 w-3 text-rubrix-blue" />
                       </div>
                       <div>
                         <h3 className="text-sm font-medium">Academic Support</h3>
@@ -263,8 +263,8 @@ const AIAssistantPage = () => {
                     </div>
                     
                     <div className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-rubrxix-blue/10 flex items-center justify-center mt-0.5">
-                        <Bot className="h-3 w-3 text-rubrxix-blue" />
+                      <div className="h-5 w-5 rounded-full bg-rubrix-blue/10 flex items-center justify-center mt-0.5">
+                        <Bot className="h-3 w-3 text-rubrix-blue" />
                       </div>
                       <div>
                         <h3 className="text-sm font-medium">Coding Assistance</h3>
@@ -273,8 +273,8 @@ const AIAssistantPage = () => {
                     </div>
                     
                     <div className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-rubrxix-blue/10 flex items-center justify-center mt-0.5">
-                        <Bot className="h-3 w-3 text-rubrxix-blue" />
+                      <div className="h-5 w-5 rounded-full bg-rubrix-blue/10 flex items-center justify-center mt-0.5">
+                        <Bot className="h-3 w-3 text-rubrix-blue" />
                       </div>
                       <div>
                         <h3 className="text-sm font-medium">Study Resources</h3>
@@ -283,8 +283,8 @@ const AIAssistantPage = () => {
                     </div>
                     
                     <div className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-rubrxix-blue/10 flex items-center justify-center mt-0.5">
-                        <Bot className="h-3 w-3 text-rubrxix-blue" />
+                      <div className="h-5 w-5 rounded-full bg-rubrix-blue/10 flex items-center justify-center mt-0.5">
+                        <Bot className="h-3 w-3 text-rubrix-blue" />
                       </div>
                       <div>
                         <h3 className="text-sm font-medium">Writing Feedback</h3>

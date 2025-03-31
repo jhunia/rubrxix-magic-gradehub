@@ -10,8 +10,8 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <GraduationCap className="h-6 w-6 text-rubrxix-blue" />
-              <span className="text-xl font-bold">rubrxix</span>
+              <GraduationCap className="h-6 w-6 text-rubrix-blue" />
+              <span className="text-xl font-bold">rubrix</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               A modern platform for AI-assisted grading and academic management.
@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
                 href="#" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-muted-foreground hover:text-rubrxix-blue transition-colors"
+                className="text-muted-foreground hover:text-rubrix-blue transition-colors"
                 aria-label="Github"
               >
                 <Github className="h-5 w-5" />
@@ -30,7 +30,7 @@ const Footer: React.FC = () => {
                 href="#" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-muted-foreground hover:text-rubrxix-blue transition-colors"
+                className="text-muted-foreground hover:text-rubrix-blue transition-colors"
                 aria-label="Twitter"
               >
                 <Twitter className="h-5 w-5" />
@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
                 href="#" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-muted-foreground hover:text-rubrxix-blue transition-colors"
+                className="text-muted-foreground hover:text-rubrix-blue transition-colors"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
@@ -51,22 +51,22 @@ const Footer: React.FC = () => {
             <h3 className="font-medium mb-4">Platform</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/features" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/features" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Features
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/pricing" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Pricing
                 </Link>
               </li>
               <li>
-                <Link to="/testimonials" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/testimonials" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Testimonials
                 </Link>
               </li>
@@ -77,22 +77,22 @@ const Footer: React.FC = () => {
             <h3 className="font-medium mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/documentation" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/documentation" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link to="/guides" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/guides" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Guides
                 </Link>
               </li>
               <li>
-                <Link to="/api" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/api" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   API
                 </Link>
               </li>
               <li>
-                <Link to="/support" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/support" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Support
                 </Link>
               </li>
@@ -103,22 +103,22 @@ const Footer: React.FC = () => {
             <h3 className="font-medium mb-4">Company</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/about" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/careers" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/careers" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Careers
                 </Link>
               </li>
               <li>
-                <Link to="/privacy" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/privacy" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="text-muted-foreground hover:text-rubrxix-blue transition-colors">
+                <Link to="/terms" className="text-muted-foreground hover:text-rubrix-blue transition-colors">
                   Terms of Service
                 </Link>
               </li>
@@ -127,7 +127,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="border-t border-gray-200 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} rubrxix. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} rubrix. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacy

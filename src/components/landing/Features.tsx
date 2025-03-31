@@ -28,7 +28,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon, del
       transition={{ duration: 0.5, delay }}
       className="bg-white rounded-xl p-6 shadow-soft border border-gray-100 hover:shadow-medium transition-all duration-300 hover:border-blue-100"
     >
-      <div className="h-12 w-12 flex items-center justify-center rounded-full bg-rubrxix-blue/10 text-rubrxix-blue mb-5">
+      <div className="h-12 w-12 flex items-center justify-center rounded-full bg-rubrix-blue/10 text-rubrix-blue mb-5">
         {icon}
       </div>
       <h3 className="text-xl font-semibold mb-3">{title}</h3>
@@ -47,7 +47,7 @@ const Features: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="inline-block text-sm font-medium text-rubrxix-blue bg-rubrxix-blue/10 py-1 px-3 rounded-full mb-3"
+            className="inline-block text-sm font-medium text-rubrix-blue bg-rubrix-blue/10 py-1 px-3 rounded-full mb-3"
           >
             Features
           </motion.span>
@@ -117,7 +117,7 @@ const Features: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="mt-20 bg-white rounded-2xl p-8 md:p-12 shadow-medium border border-gray-200/50 overflow-hidden relative"
         >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rubrxix-blue to-rubrxix-orange"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rubrix-blue to-rubrix-orange"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-2xl md:text-3xl font-bold mb-4">AI Assistant for Students and Lecturers</h3>
@@ -126,19 +126,19 @@ const Features: React.FC = () => {
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-rubrxix-blue mr-2 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-rubrix-blue mr-2 mt-0.5" />
                   <span>24/7 personalized academic support</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-rubrxix-blue mr-2 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-rubrix-blue mr-2 mt-0.5" />
                   <span>Assignment clarification and guidance</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-rubrxix-blue mr-2 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-rubrix-blue mr-2 mt-0.5" />
                   <span>Conceptual explanations and examples</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-rubrxix-blue mr-2 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-rubrix-blue mr-2 mt-0.5" />
                   <span>Grading assistance for lecturers</span>
                 </li>
               </ul>
@@ -147,7 +147,7 @@ const Features: React.FC = () => {
               {/* Chat interface mockup */}
               <div className="absolute inset-0 flex flex-col">
                 <div className="bg-white h-12 border-b flex items-center px-4">
-                  <div className="h-8 w-8 rounded-full bg-rubrxix-blue/20 flex items-center justify-center text-rubrxix-blue">
+                  <div className="h-8 w-8 rounded-full bg-rubrix-blue/20 flex items-center justify-center text-rubrix-blue">
                     <Brain className="h-5 w-5" />
                   </div>
                   <div className="ml-3">
@@ -157,7 +157,7 @@ const Features: React.FC = () => {
                 </div>
                 <div className="flex-1 p-4 overflow-y-auto space-y-4">
                   <div className="flex justify-end">
-                    <div className="bg-rubrxix-blue text-white rounded-lg rounded-tr-none px-4 py-2 max-w-[80%]">
+                    <div className="bg-rubrix-blue text-white rounded-lg rounded-tr-none px-4 py-2 max-w-[80%]">
                       How do I implement a linked list in Java?
                     </div>
                   </div>
@@ -167,7 +167,7 @@ const Features: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <div className="bg-rubrxix-blue text-white rounded-lg rounded-tr-none px-4 py-2 max-w-[80%]">
+                    <div className="bg-rubrix-blue text-white rounded-lg rounded-tr-none px-4 py-2 max-w-[80%]">
                       Yes, please show me a simple example.
                     </div>
                   </div>
@@ -192,9 +192,9 @@ const Features: React.FC = () => {
                   <input 
                     type="text" 
                     placeholder="Type your question..." 
-                    className="flex-1 rounded-full border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rubrxix-blue focus:border-transparent"
+                    className="flex-1 rounded-full border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rubrix-blue focus:border-transparent"
                   />
-                  <button className="ml-2 h-8 w-8 rounded-full bg-rubrxix-blue text-white flex items-center justify-center">
+                  <button className="ml-2 h-8 w-8 rounded-full bg-rubrix-blue text-white flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="22" y1="2" x2="11" y2="13"></line>
                       <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>

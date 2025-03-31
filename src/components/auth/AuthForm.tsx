@@ -109,16 +109,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       className="w-full max-w-md bg-white rounded-xl shadow-soft p-8 border border-gray-200"
     >
       <div className="mb-8 text-center">
-        <div className="mx-auto w-12 h-12 flex items-center justify-center bg-rubrxix-blue/10 rounded-full mb-4">
-          <GraduationCap className="h-6 w-6 text-rubrxix-blue" />
+        <div className="mx-auto w-12 h-12 flex items-center justify-center bg-rubrix-blue/10 rounded-full mb-4">
+          <GraduationCap className="h-6 w-6 text-rubrix-blue" />
         </div>
         <h2 className="text-2xl font-bold">
-          {type === 'sign-in' ? 'Sign in to rubrxix' : 'Create your account'}
+          {type === 'sign-in' ? 'Sign in to rubrix' : 'Create your account'}
         </h2>
         <p className="text-muted-foreground mt-2">
           {type === 'sign-in' 
             ? 'Enter your credentials to access your account' 
-            : 'Join rubrxix to streamline your grading experience'}
+            : 'Join rubrix to streamline your grading experience'}
         </p>
       </div>
       
@@ -235,7 +235,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             <div className="flex justify-end">
               <a 
                 href="#" 
-                className="text-sm text-rubrxix-blue hover:underline"
+                className="text-sm text-rubrix-blue hover:underline"
               >
                 Forgot password?
               </a>
@@ -244,7 +244,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           
           <Button 
             type="submit" 
-            className="w-full bg-rubrxix-blue hover:bg-rubrxix-blue/90 text-white transition-all duration-300"
+            className="w-full bg-rubrix-blue hover:bg-rubrix-blue/90 text-white transition-all duration-300"
           >
             {type === 'sign-in' ? 'Sign In' : 'Create Account'}
           </Button>
@@ -255,14 +255,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         {type === 'sign-in' ? (
           <p>
             Don't have an account?{' '}
-            <a href="/sign-up" className="text-rubrxix-blue hover:underline font-medium">
+            <a href="/sign-up" className="text-rubrix-blue hover:underline font-medium">
               Sign up
             </a>
           </p>
         ) : (
           <p>
             Already have an account?{' '}
-            <a href="/sign-in" className="text-rubrxix-blue hover:underline font-medium">
+            <a href="/sign-in" className="text-rubrix-blue hover:underline font-medium">
               Sign in
             </a>
           </p>

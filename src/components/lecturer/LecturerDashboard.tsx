@@ -53,7 +53,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
         </div>
         <div className="flex space-x-2">
           <Link to="/lecturer/courses/new">
-            <Button className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
+            <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
               <PlusCircle className="h-4 w-4" />
               New Course
             </Button>
@@ -80,7 +80,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
             <CardContent>
               <div className="flex items-center space-x-2">
                 <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center">
-                  <BookOpen className="h-5 w-5 text-rubrxix-blue" />
+                  <BookOpen className="h-5 w-5 text-rubrix-blue" />
                 </div>
                 <div className="text-2xl font-bold">{courses.length}</div>
               </div>
@@ -100,7 +100,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
             <CardContent>
               <div className="flex items-center space-x-2">
                 <div className="h-9 w-9 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-rubrxix-orange" />
+                  <Users className="h-5 w-5 text-rubrix-orange" />
                 </div>
                 <div className="text-2xl font-bold">
                   {/* Get unique student IDs across all courses */}
@@ -156,7 +156,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Your Courses</h2>
           <Link to="/lecturer/courses">
-            <Button variant="ghost" size="sm" className="text-rubrxix-blue">
+            <Button variant="ghost" size="sm" className="text-rubrix-blue">
               View All
             </Button>
           </Link>
@@ -177,7 +177,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
               <CardTitle className="text-lg mb-2">No courses yet</CardTitle>
               <CardDescription className="mb-4">Get started by creating your first course</CardDescription>
               <Link to="/lecturer/courses/new">
-                <Button className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
+                <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
                   <PlusCircle className="h-4 w-4" />
                   Create Course
                 </Button>
@@ -197,7 +197,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Recent Activity</CardTitle>
-                <Button variant="ghost" size="sm" className="text-rubrxix-blue">
+                <Button variant="ghost" size="sm" className="text-rubrix-blue">
                   View All
                 </Button>
               </div>
@@ -248,7 +248,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Upcoming Deadlines</CardTitle>
-                <Button variant="ghost" size="sm" className="text-rubrxix-blue">
+                <Button variant="ghost" size="sm" className="text-rubrix-blue">
                   View Calendar
                 </Button>
               </div>

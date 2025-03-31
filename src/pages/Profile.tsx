@@ -88,7 +88,7 @@ const Profile = () => {
                 <div className="mb-6 w-full text-center">
                   <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-white shadow-md">
                     <AvatarImage src={profileData.profileImage} />
-                    <AvatarFallback className="bg-rubrxix-blue text-white text-xl">
+                    <AvatarFallback className="bg-rubrix-blue text-white text-xl">
                       {profileData.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>

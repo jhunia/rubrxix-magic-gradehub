@@ -30,11 +30,11 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
       transition={{ duration: 0.3, delay: index * 0.1 }}
       className="bg-white rounded-xl shadow-soft border border-gray-200 overflow-hidden hover:shadow-medium transition-all duration-300"
     >
-      <div className="h-3 bg-gradient-to-r from-rubrxix-blue to-rubrxix-blue/70"></div>
+      <div className="h-3 bg-gradient-to-r from-rubrix-blue to-rubrix-blue/70"></div>
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <Badge variant="outline" className="mb-2 bg-rubrxix-blue/5 text-rubrxix-blue border-rubrxix-blue/20">
+            <Badge variant="outline" className="mb-2 bg-rubrix-blue/5 text-rubrix-blue border-rubrix-blue/20">
               {code}
             </Badge>
             <h3 className="text-xl font-semibold mb-2 line-clamp-1">{title}</h3>
@@ -87,7 +87,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
           </div>
           
           <Link to={`/lecturer/courses/${id}`}>
-            <Button variant="ghost" size="sm" className="text-rubrxix-blue hover:text-rubrxix-blue/90 hover:bg-rubrxix-blue/10">
+            <Button variant="ghost" size="sm" className="text-rubrix-blue hover:text-rubrix-blue/90 hover:bg-rubrix-blue/10">
               Manage
             </Button>
           </Link>

@@ -76,7 +76,7 @@ const Courses = () => {
               <p className="text-muted-foreground">Manage your courses and assignments</p>
             </div>
             <Link to="/lecturer/courses/new">
-              <Button className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
+              <Button className="gap-2 bg--blue hover:bg-rubrix-blue/90">
                 <PlusCircle className="h-4 w-4" />
                 Create Course
               </Button>
@@ -96,7 +96,7 @@ const Courses = () => {
                 <CardContent>
                   <div className="flex items-center space-x-2">
                     <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center">
-                      <BookOpen className="h-5 w-5 text-rubrxix-blue" />
+                      <BookOpen className="h-5 w-5 text-rubrix-blue" />
                     </div>
                     <div className="text-2xl font-bold">{lecturerCourses.length}</div>
                   </div>
@@ -181,7 +181,7 @@ const Courses = () => {
                   variant={viewMode === 'grid' ? 'default' : 'outline'} 
                   size="icon"
                   onClick={() => setViewMode('grid')}
-                  className={viewMode === 'grid' ? 'bg-rubrxix-blue hover:bg-rubrxix-blue/90' : ''}
+                  className={viewMode === 'grid' ? 'bg-rubrix-blue hover:bg-rubrix-blue/90' : ''}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="7" height="7" />
@@ -194,7 +194,7 @@ const Courses = () => {
                   variant={viewMode === 'list' ? 'default' : 'outline'} 
                   size="icon"
                   onClick={() => setViewMode('list')}
-                  className={viewMode === 'list' ? 'bg-rubrxix-blue hover:bg-rubrxix-blue/90' : ''}
+                  className={viewMode === 'list' ? 'bg-rubrix-blue hover:bg-rubrix-blue/90' : ''}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="3" y1="6" x2="21" y2="6" />
@@ -222,7 +222,7 @@ const Courses = () => {
                     <h3 className="text-lg font-medium mb-2">No courses found</h3>
                     <p className="text-muted-foreground mb-4">Try adjusting your search or create a new course</p>
                     <Link to="/lecturer/courses/new">
-                      <Button className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
+                      <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
                         <PlusCircle className="h-4 w-4" />
                         Create Course
                       </Button>

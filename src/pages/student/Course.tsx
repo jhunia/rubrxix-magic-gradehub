@@ -97,7 +97,7 @@ const StudentCourse = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Link to="/student/courses" className="text-sm text-rubrxix-blue hover:underline">
+                  <Link to="/student/courses" className="text-sm text-rubrix-blue hover:underline">
                     Courses
                   </Link>
                   <span className="text-sm text-muted-foreground">/</span>
@@ -122,7 +122,7 @@ const StudentCourse = () => {
                   </Button>
                 </Link>
                 <Link to={`/student/courses/${course.id}/materials`}>
-                  <Button className="w-full sm:w-auto bg-rubrxix-blue hover:bg-rubrxix-blue/90">
+                  <Button className="w-full sm:w-auto bg-rubrix-blue hover:bg-rubrix-blue/90">
                     <BookText className="mr-2 h-4 w-4" />
                     Materials
                   </Button>
