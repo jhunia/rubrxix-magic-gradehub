@@ -59,7 +59,7 @@ const CourseSchema = new mongoose.Schema(
       maxlength: 8
     },
     instructor: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "User",
       required: true
     },
