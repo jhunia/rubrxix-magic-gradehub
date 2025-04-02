@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/ui/layout/Header';
 import Footer from '@/components/ui/layout/Footer';
 import AIAssistant from '@/components/shared/AIAssistant';
 import { mockUsers, mockAssignments, mockSubmissions, getCourseById } from '@/utils/mockData';
 import { Assignment, Submission, RubricItem } from '@/types';
+import { fetchAssignments, fetchAssignmentById } from '@/api/assignmentApi';
+
 
 import {
   Card,
@@ -42,12 +44,34 @@ const StudentAssignment = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [submissionText, setSubmissionText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const lecturerId = localStorage.getItem('userId');
   const student = mockUsers.find(user => user.role === 'student');
   const assignment = mockAssignments.find(a => a.id === id);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const studentSubmission = student && assignment 
     ? mockSubmissions.find(s => s.assignmentId === assignment.id && s.studentId === student.id)
     : undefined;
+
+  
+    useEffect(() => {
+      const loadAssignments = async () => {
+        try {
+          setLoading(true);
+          const data = await fetchAssignments(lecturerId);
+          setAssignments(data);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to load assignments');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      if (!id) {
+        loadAssignments();
+      }
+    }, [id, lecturerId]);
   
   if (!assignment) {
     return (
@@ -71,6 +95,18 @@ const StudentAssignment = () => {
       </div>
     );
   }
+
+  const dueCount = assignments.filter(a => new Date(a.dueDate) > new Date()).length;
+  const pastDueCount = assignments.filter(a => new Date(a.dueDate) <= new Date()).length;
+  const publishedCount = assignments.filter(a => a.published).length;
+  const draftCount = assignments.filter(a => !a.published).length;
+
+  // Enhanced assignments with course info (if your backend doesn't already include it)
+  const enhancedAssignments = assignments.map(assignment => ({
+    ...assignment,
+    courseTitle: assignment.course?.courseName || 'Unknown Course',
+    courseCode: assignment.course?.courseNumber || 'N/A'
+  }));
   
   const course = getCourseById(assignment.courseId);
   
@@ -129,7 +165,7 @@ const StudentAssignment = () => {
                       </Link>
                       <span className="text-sm text-muted-foreground">/</span>
                       <Link to={`/student/courses/${course.id}`} className="text-sm text-rubrix-blue hover:underline">
-                        {course.title}
+                        {course.courseName}
                       </Link>
                       <span className="text-sm text-muted-foreground">/</span>
                     </>
@@ -139,7 +175,7 @@ const StudentAssignment = () => {
                 <h1 className="text-3xl font-bold">{assignment.title}</h1>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="secondary" className="bg-blue-100 border-0 text-blue-700">
-                    {course?.code || 'Course'}
+                    {course?.courseNumber || 'Course'}
                   </Badge>
                   
                   {!isSubmitted && !isPastDue && (

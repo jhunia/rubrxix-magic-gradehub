@@ -49,6 +49,7 @@ import { format } from 'date-fns';
 import { Assignment, Submission, RubricItem } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/components/ui/use-toast';
+import { fetchAssignments, fetchAssignmentById } from '@/api/assignmentApi';
 
 const Assignments = () => {
   const { id } = useParams<{ id: string }>();
@@ -60,6 +61,9 @@ const Assignments = () => {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>();
   const [dayAssignments, setDayAssignments] = useState<Assignment[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Find the lecturer from mock data (in a real app, this would come from auth)
   const lecturer = mockUsers.find(user => user.role === 'lecturer');
@@ -68,8 +72,8 @@ const Assignments = () => {
   const allAssignments = lecturerCourses.flatMap(course => 
     course.assignments.map(assignment => ({
       ...assignment,
-      courseTitle: course.title,
-      courseCode: course.code,
+      courseTitle: course.courseName,
+      courseCode: course.courseNumber,
     }))
   );
 
@@ -92,6 +96,7 @@ const Assignments = () => {
     }
     return assignment;
   });
+
   // Find the specific assignment when in detail view
   const assignmentWithCourse = id ? lecturerCourses.reduce<{assignment?: Assignment, course?: any}>((result, course) => {
     if (result.assignment) return result;
@@ -101,8 +106,8 @@ const Assignments = () => {
       return { 
         assignment: {
           ...foundAssignment,
-          courseCode: course.code,
-          courseTitle: course.title
+          courseCode: course.courseNumber,
+          courseTitle: course.courseName
         }, 
         course 
       };
@@ -629,7 +634,7 @@ const Assignments = () => {
                 </TabsList>
               </Tabs>
               <Link to="/lecturer/assignments/new">
-                <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
+                <Button className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
                   <PlusCircle className="h-4 w-4" />
                   Create Assignment
                 </Button>
@@ -650,7 +655,7 @@ const Assignments = () => {
                 <CardContent>
                   <div className="flex items-center space-x-2">
                     <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-rubrix-blue" />
+                      <FileText className="h-5 w-5 text-rubrxix-blue" />
                     </div>
                     <div className="text-2xl font-bold">{allAssignments.length}</div>
                   </div>
@@ -739,7 +744,7 @@ const Assignments = () => {
                   <option value="all">All Courses</option>
                   {lecturerCourses.map(course => (
                     <option key={course.id} value={course.id}>
-                      {course.code}: {course.title}
+                      {course.courseNumber}: {course.courseName}
                     </option>
                   ))}
                 </select>
@@ -895,7 +900,7 @@ const Assignments = () => {
                           const course = lecturerCourses.find(c => c.id === assignment.courseId);
                           const isDue = new Date(assignment.dueDate) <= new Date();
                           const submissionCount = assignment.submissions?.length || 0;
-                          const totalStudents = course?.enrolledStudents.length || 0;
+                          const totalStudents = course?.students?.length || 0;
                           const hasPlagiarism = assignment.submissions?.some(s => (s.plagiarismScore || 0) > 70);
                           const hasPerfectScore = assignment.submissions?.some(s => s.grade === assignment.totalPoints);
                           

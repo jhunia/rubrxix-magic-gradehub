@@ -58,7 +58,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({
             
             {course && (
               <Badge variant="outline" className="whitespace-nowrap text-xs font-normal bg-secondary/50">
-                {course.code}
+                {course.courseNumber}
               </Badge>
             )}
           </div>
