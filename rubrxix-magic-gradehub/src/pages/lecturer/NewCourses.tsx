@@ -23,10 +23,8 @@ export default function NewCourse() {
       
       // Check common ID field names
       const instructorId = 
-        userData._id || // MongoDB default
-        userData.id || // Common alternative
         userData.userId || // Some APIs use this
-        userData.sub; // JWT standard
+        userData._id; // JWT standard
       
       if (!instructorId) {
         console.error('User data structure:', userData);

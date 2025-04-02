@@ -11,13 +11,13 @@ export interface User {
 
 export interface Course {
   id: string;
-  title: string;
-  code: string;
+  courseName: string;
+  courseNumber: string;
   description: string;
   lecturerId: string;
   semester: string;
   year: number;
-  enrolledStudents: string[]; // Array of student IDs
+  students: string[]; // Array of student IDs
   assignments: Assignment[];
   createdAt: Date;
   updatedAt: Date;

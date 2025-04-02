@@ -21,7 +21,7 @@ interface CourseCardProps {
 }
 
 const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
-  const { id, title, code, description, enrolledStudents, assignments } = course;
+  const { id, courseName, courseNumber, description, students, assignments } = course;
   
   return (
     <motion.div
@@ -35,9 +35,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
         <div className="flex justify-between items-start mb-4">
           <div>
             <Badge variant="outline" className="mb-2 bg-rubrix-blue/5 text-rubrix-blue border-rubrix-blue/20">
-              {code}
+              {courseNumber}
             </Badge>
-            <h3 className="text-xl font-semibold mb-2 line-clamp-1">{title}</h3>
+            <h3 className="text-xl font-semibold mb-2 line-clamp-1">{courseName}</h3>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -78,11 +78,11 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
           <div className="flex space-x-4">
             <div className="flex items-center text-sm text-muted-foreground">
               <Users className="h-4 w-4 mr-1" />
-              <span>{enrolledStudents.length} students</span>
+              <span>{students?.length} students</span>
             </div>
             <div className="flex items-center text-sm text-muted-foreground">
               <FileText className="h-4 w-4 mr-1" />
-              <span>{assignments.length} assignments</span>
+              <span>{assignments?.length} assignments</span>
             </div>
           </div>
           

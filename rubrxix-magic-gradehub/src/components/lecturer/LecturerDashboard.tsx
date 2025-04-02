@@ -1,55 +1,195 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PlusCircle, BookOpen, Users, Clock, FileText, BarChart, Bell } from 'lucide-react';
+import { 
+  PlusCircle, BookOpen, Users, Clock, FileText, Bell, Loader2, AlertCircle 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CourseCard from './CourseCard';
 import { Course, Assignment, Submission } from '@/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  Card, CardContent, CardDescription, CardHeader, CardTitle 
+} from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { fetchInstructorCourses } from '@/api/courseApi';
+// import { useAuth } from '@/context/AuthContext';
 
 interface LecturerDashboardProps {
-  courses: Course[];
   recentSubmissions: Submission[];
 }
 
-const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ 
-  courses, 
-  recentSubmissions 
-}) => {
-  // Get all assignments from all courses
-  const allAssignments = courses.flatMap(course => course.assignments);
-  
-  // Count assignments due in the next 7 days
-  const today = new Date();
-  const nextWeek = new Date();
-  nextWeek.setDate(today.getDate() + 7);
-  
-  const upcomingAssignments = allAssignments.filter(assignment => {
-    const dueDate = new Date(assignment.dueDate);
-    return dueDate >= today && dueDate <= nextWeek;
-  });
-  
-  // Count recent submissions (last 7 days)
-  const lastWeek = new Date();
-  lastWeek.setDate(today.getDate() - 7);
-  
-  const recentSubmissionsCount = recentSubmissions.filter(submission => {
-    const submittedDate = new Date(submission.submittedAt);
-    return submittedDate >= lastWeek;
-  }).length;
-  
-  // Count pending submissions (submitted but not graded)
-  const pendingSubmissions = recentSubmissions.filter(
-    submission => submission.status === 'submitted'
-  ).length;
-  
+const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ recentSubmissions }) => {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  // const { currentUser } = useAuth(); // Assuming you have an auth context
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const user = localStorage.getItem('user');
+        const parsedUser = JSON.parse(user); // Parse the string into an object
+        const userId = parsedUser.userId;
+        if (!userId) {
+          navigate('/sign-in');
+          return;
+        }
+        
+        const response = await fetchInstructorCourses(userId);
+        console.log('Fetched courses:', response);
+        // Ensure the response is an array
+        if (!Array.isArray(response)) {
+          throw new Error('Invalid courses data format received from server');
+        }
+        
+        setCourses(response);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load courses');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, [navigate]);
+
+  // Safely calculate derived values
+  const allAssignments = React.useMemo(() => {
+    try {
+      return Array.isArray(courses) ? courses.flatMap(course => 
+        Array.isArray(course.assignments) ? course.assignments : []
+      ) : [];
+    } catch (error) {
+      console.error('Error calculating assignments:', error);
+      return [];
+    }
+  }, [courses]);
+
+  const upcomingAssignments = React.useMemo(() => {
+    try {
+      const today = new Date();
+      const nextWeek = new Date();
+      nextWeek.setDate(today.getDate() + 7);
+      
+      return allAssignments.filter(assignment => {
+        try {
+          const dueDate = new Date(assignment.dueDate);
+          return dueDate >= today && dueDate <= nextWeek;
+        } catch {
+          return false;
+        }
+      });
+    } catch (error) {
+      console.error('Error calculating upcoming assignments:', error);
+      return [];
+    }
+  }, [allAssignments]);
+
+  const pendingSubmissions = React.useMemo(() => {
+    try {
+      return Array.isArray(recentSubmissions) 
+        ? recentSubmissions.filter(sub => sub.status === 'submitted').length 
+        : 0;
+    } catch (error) {
+      console.error('Error calculating pending submissions:', error);
+      return 0;
+    }
+  }, [recentSubmissions]);
+
+  const totalStudents = React.useMemo(() => {
+    try {
+      if (!Array.isArray(courses)) return 0;
+      
+      const allStudents = courses.flatMap(course => 
+        Array.isArray(course.students) ? course.students : []
+      );
+      return new Set(allStudents).size;
+    } catch (error) {
+      console.error('Error calculating total students:', error);
+      return 0;
+    }
+  }, [courses]);
+
+  // ... rest of your component remains the same ...
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <div className="flex space-x-2">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-36" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-2">
+                  <Skeleton className="h-9 w-9 rounded-full" />
+                  <Skeleton className="h-8 w-12" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-32" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-[180px] w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error loading dashboard</AlertTitle>
+          <AlertDescription>
+            {error}
+          </AlertDescription>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+            variant="outline"
+          >
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Retry
+          </Button>
+        </Alert>
+      </div>
+    );
+  }
+
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between md:items-center space-y-4 md:space-y-0">
         <div>
           <h1 className="text-3xl font-bold">Lecturer Dashboard</h1>
-          <p className="text-muted-foreground">Manage your courses, assignments, and student submissions</p>
+          <p className="text-muted-foreground">
+            Manage your courses, assignments, and student submissions
+          </p>
         </div>
         <div className="flex space-x-2">
           <Link to="/lecturer/courses/new">
@@ -75,7 +215,9 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
         >
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Courses</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Courses
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2">
@@ -95,17 +237,16 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
         >
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Students</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Students
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2">
                 <div className="h-9 w-9 rounded-full bg-orange-100 flex items-center justify-center">
                   <Users className="h-5 w-5 text-rubrix-orange" />
                 </div>
-                <div className="text-2xl font-bold">
-                  {/* Get unique student IDs across all courses */}
-                  {new Set(courses.flatMap(course => course.enrolledStudents)).size}
-                </div>
+                <div className="text-2xl font-bold">{totalStudents}</div>
               </div>
             </CardContent>
           </Card>
@@ -118,7 +259,9 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
         >
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Upcoming Due Dates</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Upcoming Due Dates
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2">
@@ -138,7 +281,9 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
         >
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Submissions</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Pending Submissions
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2">
@@ -165,21 +310,27 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
         {courses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {courses.slice(0, 3).map((course, index) => (
-              <CourseCard key={course.id} course={course} index={index} />
+              <CourseCard 
+                key={course.id} 
+                course={course} 
+                index={index} 
+              />
             ))}
           </div>
         ) : (
           <Card className="bg-muted/50 border-dashed">
-            <CardContent className="py-8 flex flex-col items-center justify-center text-center">
+            <CardContent className="py-12 flex flex-col items-center justify-center text-center">
               <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
                 <BookOpen className="h-6 w-6 text-muted-foreground" />
               </div>
               <CardTitle className="text-lg mb-2">No courses yet</CardTitle>
-              <CardDescription className="mb-4">Get started by creating your first course</CardDescription>
+              <CardDescription className="mb-4 max-w-md">
+                You haven't created any courses. Get started by creating your first course to manage lectures, assignments, and student submissions.
+              </CardDescription>
               <Link to="/lecturer/courses/new">
                 <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
                   <PlusCircle className="h-4 w-4" />
-                  Create Course
+                  Create Your First Course
                 </Button>
               </Link>
             </CardContent>
@@ -218,10 +369,11 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
                           New submission for {assignment?.title}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Course: {course?.title} | Status: {submission.status}
+                          Course: {course?.courseName} | Status: {submission.status}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(submission.submittedAt).toLocaleDateString()} at {new Date(submission.submittedAt).toLocaleTimeString()}
+                          {new Date(submission.submittedAt).toLocaleDateString()} at {' '}
+                          {new Date(submission.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>
@@ -257,7 +409,8 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
               <div className="space-y-4">
                 {upcomingAssignments.slice(0, 5).map((assignment) => {
                   const course = courses.find(c => c.id === assignment.courseId);
-                  const daysLeft = Math.ceil((new Date(assignment.dueDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                  const dueDate = new Date(assignment.dueDate);
+                  const daysLeft = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
                   
                   return (
                     <div key={assignment.id} className="flex items-start space-x-3">
@@ -272,10 +425,11 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({
                           </p>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Course: {course?.title}
+                          Course: {course?.courseName}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Due on {new Date(assignment.dueDate).toLocaleDateString()}
+                          Due on {dueDate.toLocaleDateString()} at {' '}
+                          {dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>

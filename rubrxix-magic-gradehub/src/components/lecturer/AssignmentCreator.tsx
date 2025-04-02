@@ -46,6 +46,7 @@ const assignmentSchema = z.object({
   enableAiGrading: z.boolean().default(true),
   enablePlagiarismCheck: z.boolean().default(true),
   published: z.boolean().default(false),
+  attachments: z.array(z.instanceof(File)).optional(),
   rubric: z.array(z.object({
     title: z.string().min(2, { message: 'Title must be at least 2 characters' }),
     description: z.string(),
@@ -353,6 +354,22 @@ const AssignmentCreator: React.FC<AssignmentCreatorProps> = ({ courses }) => {
                     </FormItem>
                   )}
                 />
+                <FormField
+  control={form.control}
+  name="attachments"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Attachments</FormLabel>
+      <FormControl>
+        <Input 
+          type="file" 
+          multiple
+          onChange={(e) => field.onChange(Array.from(e.target.files || []))}
+        />
+      </FormControl>
+    </FormItem>
+  )}
+/>
               </div>
             </div>
             
