@@ -1,3 +1,17 @@
+// routes/ai.js
+const express = require('express');
+const OpenAI = require('openai');
+const router = express.Router();
+
+const openai = new OpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: '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',
+  defaultHeaders: {
+    'HTTP-Referer': process.env.SITE_URL,
+    'X-Title': process.env.SITE_NAME,
+  },
+});
+
 router.post('/chat', async (req, res) => {
     try {
       const { messages } = req.body;
@@ -32,3 +46,5 @@ router.post('/chat', async (req, res) => {
       });
     }
   });
+
+module.exports = router;

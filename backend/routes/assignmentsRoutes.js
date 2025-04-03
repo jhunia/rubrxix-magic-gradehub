@@ -101,7 +101,7 @@ router.get("/:instructorId", async (req, res) => {
     const assignments = await Assignment.find({ 
       instructorId: req.params.instructorId 
     })
-    .populate('courseId', 'courseName courseNumber')
+    .populate('coursefd', 'courseName courseNumber _id')
     .sort({ dueDate: -1 });
 
     if (!assignments || assignments.length === 0) {

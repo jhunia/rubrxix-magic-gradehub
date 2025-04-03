@@ -3,15 +3,18 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5000/api/assignments';
 
-export const fetchAssignments = async (studentId: string) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/student/${studentId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching assignments:', error);
-    throw error;
-  }
-};
+export const fetchAssignments = async (instructorId: string) => {
+    try {
+      // Remove the colon before the parameter
+      const response = await axios.get(`${API_BASE_URL}/${instructorId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching assignments:', error);
+      throw error;
+    }
+  };
+
+  
 
 export const fetchAssignmentById = async (id: string) => {
   try {

@@ -50,11 +50,36 @@ import { motion } from 'framer-motion';
 import { mockUsers, mockCourses, getCoursesByLecturerId } from '@/utils/mockData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
-import { Assignment, Submission, RubricItem } from '@/types';
+import { Submission, RubricItem } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/components/ui/use-toast';
 import { fetchAssignments, fetchAssignmentById } from '@/api/assignmentApi';
 import { fetchInstructorCourses } from '@/api/courseApi';
+
+interface Assignment {
+  _id: string;
+  title: string;
+  description: string;
+  coursefd?: {
+    _id: string;
+    courseName: string;
+    courseNumber: string;
+  }; // This might need to be mapped to course details
+  dueDate: string;
+  published: boolean;
+  submissionCount: number;
+  totalPoints: number;
+  enablePlagiarismCheck: boolean;
+  // Add other fields as needed
+}
+
+interface Course {
+  _id: string;
+  courseNumber: string;
+  courseName: string;
+  // Add other fields as needed
+}
+
 const Assignments = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -66,9 +91,9 @@ const Assignments = () => {
   const [dayAssignments, setDayAssignments] = useState<Assignment[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [courses, setCourses] = useState<Course[]>([]);
   
   // Find the lecturer from mock data (in a real app, this would come from auth)
   const lecturer = mockUsers.find(user => user.role === 'lecturer');
@@ -76,65 +101,75 @@ const Assignments = () => {
   
 
   useEffect(() => {
-  let isMounted = true; // Flag to track component mount state
+    let isMounted = true;
 
-  const fetchAllAssignments = async () => {
-    try {
-      if (!isMounted) return;
-      setLoading(true);
-      setError(null);
-      
-      const user = localStorage.getItem('user');
-      if (!user) {
-        navigate('/sign-in');
-        return;
-      }
+    const fetchAllAssignments = async () => {
+      try {
+        if (!isMounted) return;
+        setLoading(true);
+        setError(null);
+        
+        const user = localStorage.getItem('user');
+        if (!user) {
+          navigate('/sign-in');
+          return;
+        }
 
-      const parsedUser = JSON.parse(user);
-      const lecturerId = parsedUser.userId;
-      if (!lecturerId) {
-        navigate('/sign-in');
-        return;
-      }
-      
-      const response = await fetchAssignments(lecturerId);
-      const courseResponse = await fetchInstructorCourses(lecturerId);
-      console.log('Fetched courses:', courseResponse);
-      
-      if (!isMounted) return; // Don't update state if unmounted
-      
-      if (!Array.isArray(courseResponse)) {
-        throw new Error('Invalid courses data format received from server');
-      }
-      if (!Array.isArray(response)) {
-        throw new Error('Invalid courses data format received from server');
-      }      
-      setAssignments(response);
-      setCourses(courseResponse);
-      console.log('Assignments fetched:', assignments);
-    } catch (err) {
-      if (!isMounted) return;
-      setError(err instanceof Error ? err.message : 'Failed to load assignments');
-      
-      // Show user-friendly error toast
-      toast({
-        title: "Error loading assignments",
-        description: "Could not fetch your assignments. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      if (isMounted) {
-        setLoading(false);
-      }
-    }
-  };
+        const parsedUser = JSON.parse(user);
+        const lecturerId = parsedUser.userId;
+        if (!lecturerId) {
+          navigate('/sign-in');
+          return;
+        }
+        
+        const assignmentsResponse = await fetchAssignments(lecturerId);
+        const courseResponse = await fetchInstructorCourses(lecturerId);
+        
+        if (!isMounted) return;
+        
+        if (!Array.isArray(courseResponse) || !Array.isArray(assignmentsResponse)) {
+          throw new Error('Invalid data format received from server');
+        }
+        
+        // Map course details to assignments
+        const assignmentsWithCourses = assignmentsResponse.map(assignment => {
+          const course = courseResponse.find(c => c._id === assignment.coursefd);
+          return {
+            ...assignment,
+            courseId: course ? {
+              courseNumber: course.courseNumber,
+              courseName: course.courseName
+            } : undefined
+          };
+        });
 
-  fetchAllAssignments();
+        setAssignments(assignmentsWithCourses);
+        setCourses(courseResponse);
+      } catch (err) {
+        if (!isMounted) return;
+        setError(err instanceof Error ? err.message : 'Failed to load assignments');
+        
+        toast({
+          title: "Error loading assignments",
+          description: "Could not fetch your assignments. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-  return () => {
-    isMounted = false; // Cleanup function
-  };
-}, [navigate]);
+    fetchAllAssignments();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate]);
+
+  if (loading) return <div>Loading assignments...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   const allAssignments = lecturerCourses.flatMap(course => 
     course.assignments.map(assignment => ({
@@ -204,21 +239,7 @@ const Assignments = () => {
   const publishedCount = allAssignments.filter(a => a.published).length;
   const draftCount = allAssignments.filter(a => !a.published).length;
 
-  useEffect(() => {
-    if (selectedDay) {
-      const assignmentsOnDay = enhancedAssignments.filter(assignment => {
-        const dueDate = new Date(assignment.dueDate);
-        return (
-          dueDate.getDate() === selectedDay.getDate() &&
-          dueDate.getMonth() === selectedDay.getMonth() &&
-          dueDate.getFullYear() === selectedDay.getFullYear()
-        );
-      });
-      setDayAssignments(assignmentsOnDay);
-    } else {
-      setDayAssignments([]);
-    }
-  }, [selectedDay, ]);
+
 
   const handleDaySelect = (day: Date | undefined) => {
     setSelectedDay(day);
@@ -950,148 +971,129 @@ const Assignments = () => {
               
               <TabsContent value="list" className="pt-2">
                 <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Assignment</TableHead>
-                        <TableHead>Course</TableHead>
-                        <TableHead>Due Date</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Submissions</TableHead>
-                        <TableHead className="w-[80px]">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {assignments.length > 0 ? (
-                        assignments.map((assignment) => {
-                          const course = lecturerCourses.find(c => c.id === assignment.courseId._id || c.id === assignment.courseId);
-                          const isDue = new Date(assignment.dueDate) <= new Date();
-                          const submissionCount = assignment.submissionCount || 0;
-                          const totalStudents = course?.students?.length || 0;
-                          const hasPlagiarism = assignment.submissions?.some(s => (s.plagiarismScore || 0) > 70);
-                          const hasPerfectScore = assignment.submissions?.some(s => s.grade === assignment.totalPoints);
-                          const isPublished = assignment.published;
-                          
-                          return (
-                            <TableRow key={assignment._id || assignment.id}>
-                              <TableCell>
-                                <div className="font-medium">{assignment.title}</div>
-                                <div className="text-sm text-muted-foreground">
-                                  {isPublished ? 'Published' : 'Draft'}
-                                </div>
-                                {hasPlagiarism && (
-                                  <Badge variant="destructive" className="mt-1">
-                                    <AlertTriangle className="h-3 w-3 mr-1" />
-                                    Plagiarism
-                                  </Badge>
-                                )}
-                                {hasPerfectScore && (
-                                  <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200 mt-1 ml-1">
-                                    Perfect Score
-                                  </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Badge variant="outline" className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-200">
-                                    {assignment.courseId?.courseNumber || course?.courseNumber}
-                                  </Badge>
-                                  <span className="text-sm">
-                                    {assignment.courseId?.courseName || course?.courseName}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <div className={`h-2 w-2 rounded-full ${isDue ? 'bg-red-500' : 'bg-green-500'}`} />
-                                  <span>
-                                    {new Date(assignment.dueDate).toLocaleDateString('en-US', {
-                                      year: 'numeric',
-                                      month: 'short',
-                                      day: 'numeric'
-                                    })}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {!isPublished ? (
-                                  <Badge variant="outline" className="bg-gray-100 hover:bg-gray-100 text-gray-700 border-gray-200">Draft</Badge>
-                                ) : isDue ? (
-                                  <Badge variant="outline" className="bg-red-50 hover:bg-red-50 text-red-700 border-red-200">Past Due</Badge>
-                                ) : (
-                                  <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200">Open</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                                  <span>{submissionCount}/{totalStudents}</span>
-                                  {totalStudents > 0 && (
-                                    <span className="text-xs text-muted-foreground">
-                                      ({Math.round((submissionCount / totalStudents) * 100)}%)
-                                    </span>
-                                  )}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                      <MoreHorizontal className="h-4 w-4" />
-                                      <span className="sr-only">Open menu</span>
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="w-[160px]">
-                                    <DropdownMenuItem 
-                                      onClick={() => navigate(`/lecturer/assignments/${assignment._id || assignment.id}`)}
-                                    >
-                                      <Eye className="h-4 w-4 mr-2" />
-                                      View Details
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <Pencil className="h-4 w-4 mr-2" />
-                                      Edit Assignment
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <FileText className="h-4 w-4 mr-2" />
-                                      View Submissions
-                                    </DropdownMenuItem>
-                                    {hasPlagiarism && (
-                                      <DropdownMenuItem 
-                                        className="text-red-600"
-                                        onClick={() => handleViewPlagiarism(assignment._id || assignment.id)}
-                                      >
-                                        <Flag className="h-4 w-4 mr-2" />
-                                        Review Plagiarism
-                                      </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuSeparator />
-                                    {/* <DropdownMenuItem 
-                                      className="text-destructive"
-                                      onClick={() => handleDeleteAssignment(assignment._id || assignment.id)}
-                                    >
-                                      <Trash2 className="h-4 w-4 mr-2" />
-                                      Delete
-                                    </DropdownMenuItem> */}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={6} className="h-24 text-center">
-                            <div className="flex flex-col items-center justify-center text-muted-foreground">
-                              <FileText className="h-10 w-10 mb-2 text-muted-foreground/60" />
-                              <p>No assignments found</p>
-                              <p className="text-sm">Try adjusting your search or filters</p>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
+                <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Assignment</TableHead>
+          <TableHead>Course</TableHead>
+          <TableHead>Due Date</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Submissions</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {assignments.map((assignment) => {
+          const isPublished = assignment.published;
+          const isDue = new Date(assignment.dueDate) < new Date();
+          const hasPlagiarism = assignment.enablePlagiarismCheck;
+          // You might want to calculate hasPerfectScore based on your data
+          const hasPerfectScore = false; // Adjust based on your criteria
+          const submissionCount = assignment.submissionCount || 0;
+          const totalStudents = 30; // You'll need to fetch this from your data
+
+          return (
+            <TableRow key={assignment._id}>
+              <TableCell>
+                <div className="font-medium">{assignment.title}</div>
+                <div className="text-sm text-muted-foreground">
+                  {isPublished ? 'Published' : 'Draft'}
+                </div>
+                {hasPlagiarism && (
+                  <Badge variant="destructive" className="mt-1">
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    Plagiarism
+                  </Badge>
+                )}
+                {hasPerfectScore && (
+                  <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200 mt-1 ml-1">
+                    Perfect Score
+                  </Badge>
+                )}
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-200">
+                    {assignment.courseId?.courseNumber || 'N/A'}
+                  </Badge>
+                  <span className="text-sm">
+                    {assignment.courseId?.courseName || 'No course assigned'}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full ${isDue ? 'bg-red-500' : 'bg-green-500'}`} />
+                  <span>
+                    {new Date(assignment.dueDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                {!isPublished ? (
+                  <Badge variant="outline" className="bg-gray-100 hover:bg-gray-100 text-gray-700 border-gray-200">Draft</Badge>
+                ) : isDue ? (
+                  <Badge variant="outline" className="bg-red-50 hover:bg-red-50 text-red-700 border-red-200">Past Due</Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200">Open</Badge>
+                )}
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{submissionCount}/{totalStudents}</span>
+                  {totalStudents > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      ({Math.round((submissionCount / totalStudents) * 100)}%)
+                    </span>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[160px]">
+                    <DropdownMenuItem 
+                      onClick={() => navigate(`/lecturer/assignments/${assignment._id}`)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit Assignment
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <FileText className="h-4 w-4 mr-2" />
+                      View Submissions
+                    </DropdownMenuItem>
+                    {hasPlagiarism && (
+                      <DropdownMenuItem 
+                        className="text-red-600"
+                        onClick={() => handleViewPlagiarism(assignment._id)}
+                      >
+                        <Flag className="h-4 w-4 mr-2" />
+                        Review Plagiarism
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
                 </div>
               </TabsContent>
             </Tabs>
