@@ -1,10 +1,10 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
+import React from 'react';
 
 // Pages
 import Index from "./pages/Index";
@@ -22,10 +22,11 @@ import StudentAssignment from "./pages/student/Assignment";
 import AIAssistantPage from "./pages/shared/AIAssistant";
 import NotFound from "./pages/NotFound";
 import NewCourse from "./pages/lecturer/NewCourses";
+import SubmissionForm from '@/pages/student/SubmissionForm';
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <MotionConfig reducedMotion="user">
       <TooltipProvider>
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="courses" element={<StudentCourses />} />
               <Route path="courses/:id" element={<StudentCourse />} />
               <Route path="assignments/:id" element={<StudentAssignment />} />
+              <Route path="assignments/knn-quiz-1/submit" element={<SubmissionForm />} />
               <Route path="profile" element={<Profile />} />
               <Route path="ai-assistant" element={<AIAssistantPage />} />
               <Route path="*" element={<NotFound />} />
