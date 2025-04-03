@@ -18,11 +18,12 @@ conn.once('open', () => {
 });
 
 // Create assignment with file uploads
+// routes/assignments.js
 router.post('/', upload.array('attachments'), async (req, res) => {
   try {
     const { 
       title, 
-      courseId, 
+      courseId,  // This should be the course _id
       instructorId,
       description, 
       dueDate, 
@@ -35,10 +36,11 @@ router.post('/', upload.array('attachments'), async (req, res) => {
       rubric
     } = req.body;
 
-    if (!instructorId) {
-      return res.status(400).json({ error: 'Instructor ID is required' });
+    if (!instructorId || !courseId) {
+      return res.status(400).json({ 
+        error: 'Instructor ID and Course ID are required' 
+      });
     }
-
 
     // Upload files to GridFS
     const attachments = [];
@@ -85,9 +87,17 @@ router.post('/', upload.array('attachments'), async (req, res) => {
       attachments
     });
 
-    await assignment.save();
+    // Save the assignment
+    const savedAssignment = await assignment.save();
 
-    res.status(201).json(assignment);
+    // Update the corresponding course to include this assignment
+    await mongoose.model('Course').findByIdAndUpdate(
+      courseId,
+      { $push: { assignments: savedAssignment._id } },
+      { new: true, useFindAndModify: false }
+    );
+
+    res.status(201).json(savedAssignment);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to create assignment' });

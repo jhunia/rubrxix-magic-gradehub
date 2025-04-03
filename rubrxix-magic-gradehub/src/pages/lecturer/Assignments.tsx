@@ -60,6 +60,7 @@ interface Assignment {
   _id: string;
   title: string;
   description: string;
+  courseId,
   coursefd?: {
     _id: string;
     courseName: string;

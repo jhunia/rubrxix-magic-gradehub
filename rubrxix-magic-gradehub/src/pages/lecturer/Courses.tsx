@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   PlusCircle, 
@@ -34,29 +34,64 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import CourseCard from '@/components/lecturer/CourseCard';
 import { mockUsers, getCoursesByLecturerId } from '@/utils/mockData';
+import { fetchInstructorCourses } from '@/api/courseApi';
+import { Course } from '@/types';
+// import { toast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const Courses = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Using mock data - in a real app, this would come from authentication and API
   const lecturer = mockUsers.find(user => user.role === 'lecturer');
   const lecturerCourses = lecturer ? getCoursesByLecturerId(lecturer.id) : [];
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+      const fetchCourses = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          const user = localStorage.getItem('user');
+          const parsedUser = JSON.parse(user); // Parse the string into an object
+          const userId = parsedUser.userId;
+          if (!userId) {
+            navigate('/sign-in');
+            return;
+          }
+          
+          const response = await fetchInstructorCourses(userId);
+          console.log('Fetched courses:', response);
+          // Ensure the response is an array
+          if (!Array.isArray(response)) {
+            throw new Error('Invalid courses data format received from server');
+          }
+          
+          setCourses(response);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to load courses');
+        } finally {
+          setLoading(false);
+        }
+      };
   
-  // Filter courses based on search query
-  const filteredCourses = lecturerCourses.filter(course => 
-    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    course.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      fetchCourses();
+    }, [navigate]);
+
   
   // Calculate statistics
-  const totalStudents = new Set(lecturerCourses.flatMap(course => course.enrolledStudents)).size;
-  const totalAssignments = lecturerCourses.reduce((acc, course) => acc + course.assignments.length, 0);
+  const totalStudents = new Set(courses.flatMap(course => course.students)).size;
+  const totalAssignments = courses.reduce((acc, course) => acc + course.assignments.length, 0);
   const currentSemester = "Fall 2023"; // In a real app, this would be dynamic
   
   return (
@@ -165,6 +200,9 @@ const Courses = () => {
             </motion.div>
           </div>
           
+          
+
+          
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
               <div className="relative w-full sm:w-auto sm:flex-1">
@@ -209,25 +247,44 @@ const Courses = () => {
             </div>
             
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCourses.length > 0 ? (
-                  filteredCourses.map((course, index) => (
-                    <CourseCard key={course.id} course={course} index={index} />
-                  ))
-                ) : (
-                  <div className="col-span-3 py-12 flex flex-col items-center justify-center text-center">
-                    <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                      <BookOpen className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <h3 className="text-lg font-medium mb-2">No courses found</h3>
-                    <p className="text-muted-foreground mb-4">Try adjusting your search or create a new course</p>
-                    <Link to="/lecturer/courses/new">
-                      <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
-                        <PlusCircle className="h-4 w-4" />
-                        Create Course
-                      </Button>
-                    </Link>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold">Your Courses</h2>
+                  <Link to="/lecturer/courses">
+                    <Button variant="ghost" size="sm" className="text-rubrix-blue">
+                      View All
+                    </Button>
+                  </Link>
+                </div>
+                
+                {courses.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {courses.slice(0, 3).map((course, index) => (
+                      <CourseCard 
+                        key={course.id} 
+                        course={course} 
+                        index={index} 
+                      />
+                    ))}
                   </div>
+                ) : (
+                  <Card className="bg-muted/50 border-dashed">
+                    <CardContent className="py-12 flex flex-col items-center justify-center text-center">
+                      <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                        <BookOpen className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <CardTitle className="text-lg mb-2">No courses yet</CardTitle>
+                      <CardDescription className="mb-4 max-w-md">
+                        You haven't created any courses. Get started by creating your first course to manage lectures, assignments, and student submissions.
+                      </CardDescription>
+                      <Link to="/lecturer/courses/new">
+                        <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
+                          <PlusCircle className="h-4 w-4" />
+                          Create Your First Course
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             ) : (
@@ -244,18 +301,18 @@ const Courses = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredCourses.length > 0 ? (
-                      filteredCourses.map((course) => (
+                    {courses.length > 0 ? (
+                      courses.map((course) => (
                         <TableRow key={course.id}>
                           <TableCell>
-                            <div className="font-medium">{course.title}</div>
+                            <div className="font-medium">{course.courseName}</div>
                             <div className="text-sm text-muted-foreground truncate max-w-[300px]">
                               {course.description}
                             </div>
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-200">
-                              {course.code}
+                              {course.courseNumber}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -264,7 +321,7 @@ const Courses = () => {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span>{course.enrolledStudents.length}</span>
+                              <span>{course.students.length}</span>
                             </div>
                           </TableCell>
                           <TableCell>
