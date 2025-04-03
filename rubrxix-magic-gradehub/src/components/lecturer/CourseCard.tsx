@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Course } from '@/types';
 import { BookOpen, Users, FileText, MoreVertical } from 'lucide-react';
 import {
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
+import { fetchInstructorCourses } from '@/api/courseApi';
 interface CourseCardProps {
   course: Course;
   index: number;
@@ -22,7 +22,44 @@ interface CourseCardProps {
 
 const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
   const { id, courseName, courseNumber, description, students, assignments } = course;
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+      const fetchCourses = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          const user = localStorage.getItem('user');
+          const parsedUser = JSON.parse(user); // Parse the string into an object
+          const userId = parsedUser.userId;
+          if (!userId) {
+            navigate('/sign-in');
+            return;
+          }
+          
+          const response = await fetchInstructorCourses(userId);
+          console.log('Fetched courses:', response);
+          // Ensure the response is an array
+          if (!Array.isArray(response)) {
+            throw new Error('Invalid courses data format received from server');
+          }
+          
+          setCourses(response);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to load courses');
+        } finally {
+          setLoading(false);
+        }
+      };
   
+      fetchCourses();
+    }, [navigate]);
+
+    
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

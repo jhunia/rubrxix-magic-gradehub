@@ -17,6 +17,11 @@ const AssignmentSchema = new mongoose.Schema(
       ref: "Course",
       required: true
     },
+    coursefd: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Course', // This must match your Course model name
+      required: false // Set to true if every assignment must have a course
+    },
     instructorId: {
       type: String,
       ref: "User",

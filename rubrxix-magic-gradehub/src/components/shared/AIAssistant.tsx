@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Brain, Send, X, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { ChatMessage } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mockChatMessages } from '@/utils/mockData';
+import { getAIResponse } from '@/api/aiApi';
+import { toast } from '@/components/ui/use-toast';
 
 const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -20,7 +20,7 @@ const AIAssistant: React.FC = () => {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
-  
+
   const toggleChat = () => {
     setIsOpen(!isOpen);
   };
@@ -50,42 +50,32 @@ const AIAssistant: React.FC = () => {
     setInputValue('');
     setIsLoading(true);
     
-    // Simulate AI response delay
-    setTimeout(() => {
-      const aiResponse: ChatMessage = {
+    try {
+      const aiResponse = await getAIResponse([
+        ...messages.map(msg => ({
+          role: msg.sender,
+          content: msg.content
+        })),
+        { role: 'user', content: inputValue }
+      ]);
+  
+      const aiMessage: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         sender: 'assistant',
-        content: getAIResponse(inputValue),
+        content: aiResponse,
         timestamp: new Date(),
       };
       
-      setMessages(prev => [...prev, aiResponse]);
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      toast({
+        title: "AI Error",
+        description: "Failed to get response from AI assistant",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
-  };
-  
-  // Simple mock AI responses based on keywords
-  const getAIResponse = (input: string): string => {
-    const lowercaseInput = input.toLowerCase();
-    
-    if (lowercaseInput.includes('assignment') && lowercaseInput.includes('due')) {
-      return "To check when your assignments are due, go to your dashboard or the assignments page. You'll see a list of all upcoming deadlines sorted by date.";
     }
-    
-    if (lowercaseInput.includes('plagiarism')) {
-      return "Our system uses AI to detect potential plagiarism by comparing your work with a database of academic sources and other student submissions. To avoid plagiarism, always cite your sources properly and ensure your work is original.";
-    }
-    
-    if (lowercaseInput.includes('linked list')) {
-      return "A linked list is a linear data structure where elements are stored in nodes, and each node points to the next node in the sequence. Unlike arrays, linked lists don't require contiguous memory allocation.\n\nHere's a simple implementation in Java:\n\n```java\nclass Node {\n    int data;\n    Node next;\n    \n    public Node(int data) {\n        this.data = data;\n        this.next = null;\n    }\n}\n\nclass LinkedList {\n    Node head;\n    \n    public void add(int data) {\n        Node newNode = new Node(data);\n        \n        if (head == null) {\n            head = newNode;\n            return;\n        }\n        \n        Node current = head;\n        while (current.next != null) {\n            current = current.next;\n        }\n        \n        current.next = newNode;\n    }\n}\n```";
-    }
-    
-    if (lowercaseInput.includes('hello') || lowercaseInput.includes('hi')) {
-      return "Hello! I'm your AI assistant for rubrix. How can I help you with your courses, assignments, or any academic questions?";
-    }
-    
-    // Default response
-    return "I'm here to help with your academic questions. You can ask me about assignments, course materials, programming concepts, or study strategies.";
   };
   
   // Format message content with code blocks
@@ -144,6 +134,11 @@ const AIAssistant: React.FC = () => {
               </CardHeader>
               <CardContent className="flex-1 overflow-y-auto p-0">
                 <div className="p-4 space-y-4 max-h-[350px] overflow-y-auto">
+                  {messages.length === 0 && (
+                    <div className="text-center text-sm text-muted-foreground py-4">
+                      Ask me anything about your courses, assignments, or programming concepts.
+                    </div>
+                  )}
                   {messages.map((message) => (
                     <div 
                       key={message.id} 
@@ -187,6 +182,7 @@ const AIAssistant: React.FC = () => {
                   />
                   <Button 
                     onClick={sendMessage}
+                    disabled={isLoading}
                     className="ml-2 h-10 w-10 p-0 bg-rubrix-blue hover:bg-rubrix-blue/90"
                   >
                     <Send className="h-4 w-4" />

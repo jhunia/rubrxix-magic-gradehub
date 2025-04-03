@@ -1,69 +1,88 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, FileText, Clock, CheckCircle, AlertTriangle, Brain } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Course, Assignment, Submission } from '@/types';
-import AssignmentCard from './AssignmentCard';
+import { BookOpen, Clock, CheckCircle, Star } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Assignment, Course, Submission } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentDashboardProps {
   courses: Course[];
   submissions: Submission[];
 }
 
-const StudentDashboard: React.FC<StudentDashboardProps> = ({ 
-  courses, 
-  submissions 
-}) => {
-  // Get all assignments from enrolled courses
-  const allAssignments = courses.flatMap(course => course.assignments);
-  
-  // Count upcoming assignments (due in the future)
+const StudentDashboard: React.FC<StudentDashboardProps> = ({ courses, submissions }) => {
+  const navigate = useNavigate();
+
+  // Define additional assignments
+  const additionalAssignments: Assignment[] = [
+    {
+      id: 'assignment-1',
+      courseId: 'course-1',
+      title: 'KNN quiz 1',
+      dueDate: new Date(new Date().setDate(new Date().getDate() + 3)), // Due in 3 days
+      totalPoints: 20,
+    },
+    {
+      id: 'assignment-2',
+      courseId: 'course-2',
+      title: 'Calculus test 5',
+      dueDate: new Date(new Date().setDate(new Date().getDate() + 5)), // Due in 5 days
+      totalPoints: 50,
+    },
+    {
+      id: 'assignment-3',
+      courseId: 'course-3',
+      title: 'Stack implementation in Java assignment',
+      dueDate: new Date(new Date().setDate(new Date().getDate() + 7)), // Due in 7 days
+      totalPoints: 30,
+    },
+  ];
+
+  // State to toggle the visibility of courses, assignments, completed, and graded lists
+  const [showCourses, setShowCourses] = useState(false);
+  const [showAssignments, setShowAssignments] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [showGraded, setShowGraded] = useState(false);
+
+  // Ensure each course has an `assignments` array
+  const coursesWithAssignments = courses.map((course) => ({
+    ...course,
+    assignments: course.assignments || [],
+  }));
+
+  // Combine existing assignments with additional ones
+  const allAssignments = coursesWithAssignments.flatMap((course) => course.assignments);
+  const combinedAssignments = [...allAssignments, ...additionalAssignments];
+
+  // Filter and sort upcoming assignments
   const today = new Date();
-  const upcomingAssignments = allAssignments.filter(assignment => {
-    const dueDate = new Date(assignment.dueDate);
-    return dueDate >= today;
-  });
-  
-  // Sort upcoming assignments by due date (closest first)
-  upcomingAssignments.sort((a, b) => {
-    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-  });
-  
-  // Count overdue assignments
-  const overdueAssignments = allAssignments.filter(assignment => {
-    const dueDate = new Date(assignment.dueDate);
-    return dueDate < today && !submissions.some(
-      s => s.assignmentId === assignment.id
-    );
-  });
-  
-  // Count completed assignments
-  const completedAssignments = submissions.filter(
-    submission => submission.status === 'submitted' || submission.status === 'graded'
-  ).length;
-  
-  // Calculate overall progress
-  const totalAssignments = allAssignments.length;
-  const progressPercentage = totalAssignments > 0 
-    ? Math.round((completedAssignments / totalAssignments) * 100) 
-    : 0;
-  
+  const upcomingAssignments = combinedAssignments
+    .filter((assignment) => new Date(assignment.dueDate) >= today)
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+
+  // Filter completed and graded submissions
+  const completedSubmissions = submissions.filter(
+    (submission) => submission.status === 'submitted'
+  );
+  const gradedSubmissions = submissions.filter(
+    (submission) => submission.status === 'graded'
+  );
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Student Dashboard</h1>
         <p className="text-muted-foreground">Track your courses, assignments, and academic progress</p>
       </div>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Enrolled Courses */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
+          onClick={() => setShowCourses(!showCourses)} // Toggle courses visibility
+          className="cursor-pointer"
         >
           <Card>
             <CardHeader className="pb-2">
@@ -79,11 +98,14 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
             </CardContent>
           </Card>
         </motion.div>
-        
+
+        {/* Upcoming Assignments */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
+          onClick={() => setShowAssignments(!showAssignments)} // Toggle assignments visibility
+          className="cursor-pointer"
         >
           <Card>
             <CardHeader className="pb-2">
@@ -99,11 +121,14 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
             </CardContent>
           </Card>
         </motion.div>
-        
+
+        {/* Completed Assignments */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2 }}
+          onClick={() => setShowCompleted(!showCompleted)} // Toggle completed visibility
+          className="cursor-pointer"
         >
           <Card>
             <CardHeader className="pb-2">
@@ -112,194 +137,134 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <CardContent>
               <div className="flex items-center space-x-2">
                 <div className="h-9 w-9 rounded-full bg-green-100 flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-5 w-5 text-green-600" />
                 </div>
-                <div className="text-2xl font-bold">{completedAssignments}</div>
+                <div className="text-2xl font-bold">{completedSubmissions.length}</div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
-        
+
+        {/* Graded Assignments */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.3 }}
+          onClick={() => setShowGraded(!showGraded)} // Toggle graded visibility
+          className="cursor-pointer"
         >
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Overdue Assignments</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Graded Assignments</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2">
-                <div className="h-9 w-9 rounded-full bg-red-100 flex items-center justify-center">
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                <div className="h-9 w-9 rounded-full bg-yellow-100 flex items-center justify-center">
+                  <Star className="h-5 w-5 text-yellow-600" />
                 </div>
-                <div className="text-2xl font-bold">{overdueAssignments.length}</div>
+                <div className="text-2xl font-bold">{gradedSubmissions.length}</div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      {/* Display courses when the card is clicked */}
+      {showCourses && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="lg:col-span-2"
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Upcoming Assignments</CardTitle>
-                <Link to="/student/assignments">
-                  <Button variant="ghost" size="sm" className="text-rubrix-blue">
-                    View All
-                  </Button>
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {upcomingAssignments.length > 0 ? (
-                <div className="space-y-4">
-                  {upcomingAssignments.slice(0, 4).map((assignment) => {
-                    const course = courses.find(c => c.id === assignment.courseId);
-                    return (
-                      <AssignmentCard 
-                        key={assignment.id} 
-                        assignment={assignment} 
-                        course={course}
-                        studentSubmission={submissions.find(s => s.assignmentId === assignment.id)}
-                      />
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center py-8">
-                  <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <FileText className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <CardTitle className="text-lg mb-2">No upcoming assignments</CardTitle>
-                  <CardDescription className="max-w-xs">
-                    You're all caught up! Check back later for new assignments.
-                  </CardDescription>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {courses.map((course) => (
+            <Card key={course.id}>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">{course.courseName}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">{course.description}</p>
+              </CardContent>
+            </Card>
+          ))}
         </motion.div>
-        
+      )}
+
+      {/* Display assignments when the card is clicked */}
+      {showAssignments && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
-          <Card>
-            <CardHeader>
-              <CardTitle>Overall Progress</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Assignments Completed</span>
-                  <span className="font-medium">{completedAssignments} / {totalAssignments}</span>
-                </div>
-                <Progress value={progressPercentage} className="h-2" />
-              </div>
-              
-              <div className="space-y-6">
-                {courses.map((course) => {
-                  const courseAssignments = allAssignments.filter(a => a.courseId === course.id);
-                  const courseSubmissions = submissions.filter(s => 
-                    courseAssignments.some(a => a.id === s.assignmentId)
-                  );
-                  const courseProgress = courseAssignments.length > 0 
-                    ? Math.round((courseSubmissions.length / courseAssignments.length) * 100)
-                    : 0;
-                  
-                  return (
-                    <div key={course.id} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">{course.courseNumber}</span>
-                        <span className="text-muted-foreground">{courseProgress}%</span>
-                      </div>
-                      <Progress value={courseProgress} className="h-1.5" />
-                    </div>
-                  );
-                })}
-              </div>
-              
-              <div className="pt-4 border-t">
-                <Link to="/student/ai-assistant">
-                  <Button className="w-full gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
-                    <Brain className="h-4 w-4" />
-                    Ask AI Assistant
-                  </Button>
-                </Link>
-                <p className="text-xs text-muted-foreground text-center mt-2">
-                  Need help with assignments or concepts? Our AI Assistant is available 24/7.
+          {upcomingAssignments.map((assignment) => (
+            <Card
+              key={assignment.id}
+              onClick={() => {
+                if (assignment.title === 'KNN quiz 1') {
+                  navigate('/student/assignments/knn-quiz-1/submit');
+                }
+              }}
+              className="cursor-pointer"
+            >
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">{assignment.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Due: {new Date(assignment.dueDate).toLocaleDateString()}
                 </p>
-              </div>
-            </CardContent>
-          </Card>
+                <p className="text-sm text-muted-foreground">Total Points: {assignment.totalPoints}</p>
+              </CardContent>
+            </Card>
+          ))}
         </motion.div>
-      </div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Enrolled Courses</CardTitle>
-              <Link to="/student/courses">
-                <Button variant="ghost" size="sm" className="text-rubrix-blue">
-                  View All
-                </Button>
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {courses.map((course) => {
-                const courseAssignments = allAssignments.filter(a => a.courseId === course.id);
-                const courseSubmissions = submissions.filter(s => 
-                  courseAssignments.some(a => a.id === s.assignmentId)
-                );
-                const courseProgress = courseAssignments.length > 0 
-                  ? Math.round((courseSubmissions.length / courseAssignments.length) * 100)
-                  : 0;
-                
-                return (
-                  <div 
-                    key={course.id} 
-                    className="bg-muted/30 rounded-lg border p-4 hover:border-rubrix-blue/30 hover:bg-rubrix-blue/5 transition-colors"
-                  >
-                    <Link to={`/student/courses/${course.id}`} className="block">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium line-clamp-1">{course.courseName}</h3>
-                        <span className="text-xs bg-secondary px-2 py-0.5 rounded font-medium">
-                          {course.courseNumber}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{course.description}</p>
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span>Progress</span>
-                          <span>{courseProgress}%</span>
-                        </div>
-                        <Progress value={courseProgress} className="h-1" />
-                      </div>
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+      )}
+
+      {/* Display completed assignments when the card is clicked */}
+      {showCompleted && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          {completedSubmissions.map((submission) => (
+            <Card key={submission.id}>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Completed Assignment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Assignment ID: {submission.assignmentId}</p>
+                <p className="text-sm text-muted-foreground">Status: {submission.status}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </motion.div>
+      )}
+
+      {/* Display graded assignments when the card is clicked */}
+      {showGraded && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          {gradedSubmissions.map((submission) => (
+            <Card key={submission.id}>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Graded Assignment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Assignment ID: {submission.assignmentId}</p>
+                <p className="text-sm text-muted-foreground">Status: {submission.status}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 };
