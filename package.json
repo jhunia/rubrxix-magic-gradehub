@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@radix-ui/react-tabs": "^1.0.4",
+    "react-markdown": "^9.0.0"
+  }
+}
