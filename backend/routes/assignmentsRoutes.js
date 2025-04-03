@@ -94,6 +94,33 @@ router.post('/', upload.array('attachments'), async (req, res) => {
   }
 });
 
+// Get all courses for a specific instructor
+router.get("/:instructorId", async (req, res) => {
+  try {
+    // Find all assignments for this instructor
+    const assignments = await Assignment.find({ 
+      instructorId: req.params.instructorId 
+    })
+    .populate('courseId', 'courseName courseNumber')
+    .sort({ dueDate: -1 });
+
+    if (!assignments || assignments.length === 0) {
+      return res.status(404).json({ 
+        message: "No assignments found for this instructor" 
+      });
+    }
+
+    res.json(assignments);
+  } catch (error) {
+    res.status(500).json({ 
+      message: "Error fetching instructor assignments",
+      error: error.message 
+    });
+  }
+});
+
+
+
 // Get file by ID
 router.get('/file/:id', async (req, res) => {
   try {

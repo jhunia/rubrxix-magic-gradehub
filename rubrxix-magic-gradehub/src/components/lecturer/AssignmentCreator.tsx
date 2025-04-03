@@ -81,7 +81,7 @@ const AssignmentCreator: React.FC<AssignmentCreatorProps> = () => {
   const [rubricJson, setRubricJson] = useState('');
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const form = useForm<AssignmentFormValues>({
     resolver: zodResolver(assignmentSchema),
     defaultValues: {
