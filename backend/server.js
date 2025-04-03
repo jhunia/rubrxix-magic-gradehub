@@ -16,9 +16,11 @@ connectDB();
 const userRoutes = require("./routes/userRoutes");
 const coursesRoutes = require("./routes/coursesRoutes");
 const assignmentsRoutes = require("./routes/assignmentsRoutes");
+const aiRoutes = require('./routes/ai');
 app.use("/api", userRoutes);
 app.use("/api/courses", coursesRoutes);
 app.use("/api/assignments", assignmentsRoutes);
+app.use('/api/ai', aiRoutes);
 
 
 // Start Server

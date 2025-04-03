@@ -4,7 +4,7 @@ import Header from '@/components/ui/layout/Header';
 import Footer from '@/components/ui/layout/Footer';
 import AIAssistant from '@/components/shared/AIAssistant';
 import { mockUsers, mockAssignments, mockSubmissions, getCourseById } from '@/utils/mockData';
-import { Assignment, Submission, RubricItem } from '@/types';
+import { Assignment, Submission, RubricItem } from '@/types/index';
 import { fetchAssignments, fetchAssignmentById } from '@/api/assignmentApi';
 
 

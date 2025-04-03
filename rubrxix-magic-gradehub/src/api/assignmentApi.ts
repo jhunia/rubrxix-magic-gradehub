@@ -1,53 +1,52 @@
-// api/assignmentApi.ts
-import { Assignment } from '@/types/index';
+// src/api/assignmentApi.ts
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5000/api/assignments';
 
-/**
- * Fetch all assignments for a lecturer
- */
-export const fetchAssignments = async (lecturerId: string): Promise<Assignment[]> => {
+export const fetchAssignments = async (studentId: string) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/${lecturerId}`);
-    
-    if (!response) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.data;
-    console.log('API response:', response.data);
-    // eslint-disable-next-line
-    return data.map((assignment: any) => ({
-      ...assignment,
-      dueDate: new Date(assignment.dueDate),
-      publishDate: assignment.publishDate ? new Date(assignment.publishDate) : null
-    }));
+    const response = await axios.get(`${API_BASE_URL}/student/${studentId}`);
+    return response.data;
   } catch (error) {
     console.error('Error fetching assignments:', error);
-    throw new Error('Failed to fetch assignments. Please try again later.');
+    throw error;
   }
 };
 
-/**
- * Fetch a single assignment by ID
- */
-export const fetchAssignmentById = async (id: string): Promise<Assignment> => {
+export const fetchAssignmentById = async (id: string) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
-    
-    if (!response.ok) {
-      throw new Error(`Assignment not found (ID: ${id})`);
-    }
-
-    const data = await response.json();
-    return {
-      ...data,
-      dueDate: new Date(data.dueDate),
-      publishDate: data.publishDate ? new Date(data.publishDate) : null
-    };
+    const response = await axios.get(`${API_BASE_URL}/${id}`);
+    return response.data;
   } catch (error) {
-    console.error(`Error fetching assignment ${id}:`, error);
-    throw new Error(`Failed to load assignment. ${error instanceof Error ? error.message : ''}`);
+    console.error('Error fetching assignment:', error);
+    throw error;
+  }
+};
+
+export const submitAssignment = async (
+  assignmentId: string,
+  studentId: string,
+  files: File[],
+  text: string
+) => {
+  try {
+    const formData = new FormData();
+    formData.append('studentId', studentId);
+    formData.append('text', text);
+    files.forEach(file => formData.append('files', file));
+
+    const response = await axios.post(
+      `${API_BASE_URL}/${assignmentId}/submit`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting assignment:', error);
+    throw error;
   }
 };
