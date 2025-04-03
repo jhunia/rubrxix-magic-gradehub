@@ -220,7 +220,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   return (
                     <div key={course.id} className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="font-medium">{course.code}</span>
+                        <span className="font-medium">{course.courseNumber}</span>
                         <span className="text-muted-foreground">{courseProgress}%</span>
                       </div>
                       <Progress value={courseProgress} className="h-1.5" />
@@ -279,9 +279,9 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   >
                     <Link to={`/student/courses/${course.id}`} className="block">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium line-clamp-1">{course.title}</h3>
+                        <h3 className="font-medium line-clamp-1">{course.courseName}</h3>
                         <span className="text-xs bg-secondary px-2 py-0.5 rounded font-medium">
-                          {course.code}
+                          {course.courseNumber}
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{course.description}</p>

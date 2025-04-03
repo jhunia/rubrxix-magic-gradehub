@@ -15,10 +15,10 @@ connectDB();
 // Route to post or get users
 const userRoutes = require("./routes/userRoutes");
 const coursesRoutes = require("./routes/coursesRoutes");
-const budgetRoutes = require("./routes/budgetRoutes");
+const assignmentsRoutes = require("./routes/assignmentsRoutes");
 app.use("/api", userRoutes);
 app.use("/api/courses", coursesRoutes);
-// app.use("/api/budgets", budgetRoutes);
+app.use("/api/assignments", assignmentsRoutes);
 
 
 // Start Server

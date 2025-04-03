@@ -17,7 +17,11 @@ import {
   Trash,
   ArrowLeft,
   Check,
-  PenLine
+  PenLine,
+  Eye,
+  Pencil,
+  Flag,
+  Trash2
 } from 'lucide-react';
 import Header from '@/components/ui/layout/Header';
 import Footer from '@/components/ui/layout/Footer';
@@ -49,7 +53,8 @@ import { format } from 'date-fns';
 import { Assignment, Submission, RubricItem } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/components/ui/use-toast';
-
+import { fetchAssignments, fetchAssignmentById } from '@/api/assignmentApi';
+import { fetchInstructorCourses } from '@/api/courseApi';
 const Assignments = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -60,16 +65,82 @@ const Assignments = () => {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>();
   const [dayAssignments, setDayAssignments] = useState<Assignment[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
   
   // Find the lecturer from mock data (in a real app, this would come from auth)
   const lecturer = mockUsers.find(user => user.role === 'lecturer');
   const lecturerCourses = lecturer ? getCoursesByLecturerId(lecturer.id) : [];
   
+
+  useEffect(() => {
+  let isMounted = true; // Flag to track component mount state
+
+  const fetchAllAssignments = async () => {
+    try {
+      if (!isMounted) return;
+      setLoading(true);
+      setError(null);
+      
+      const user = localStorage.getItem('user');
+      if (!user) {
+        navigate('/sign-in');
+        return;
+      }
+
+      const parsedUser = JSON.parse(user);
+      const lecturerId = parsedUser.userId;
+      if (!lecturerId) {
+        navigate('/sign-in');
+        return;
+      }
+      
+      const response = await fetchAssignments(lecturerId);
+      const courseResponse = await fetchInstructorCourses(lecturerId);
+      console.log('Fetched courses:', courseResponse);
+      
+      if (!isMounted) return; // Don't update state if unmounted
+      
+      if (!Array.isArray(courseResponse)) {
+        throw new Error('Invalid courses data format received from server');
+      }
+      if (!Array.isArray(response)) {
+        throw new Error('Invalid courses data format received from server');
+      }      
+      setAssignments(response);
+      setCourses(courseResponse);
+      console.log('Assignments fetched:', assignments);
+    } catch (err) {
+      if (!isMounted) return;
+      setError(err instanceof Error ? err.message : 'Failed to load assignments');
+      
+      // Show user-friendly error toast
+      toast({
+        title: "Error loading assignments",
+        description: "Could not fetch your assignments. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }
+  };
+
+  fetchAllAssignments();
+
+  return () => {
+    isMounted = false; // Cleanup function
+  };
+}, [navigate]);
+
   const allAssignments = lecturerCourses.flatMap(course => 
     course.assignments.map(assignment => ({
       ...assignment,
-      courseTitle: course.title,
-      courseCode: course.code,
+      courseTitle: course.courseName,
+      courseCode: course.courseNumber,
     }))
   );
 
@@ -92,6 +163,7 @@ const Assignments = () => {
     }
     return assignment;
   });
+
   // Find the specific assignment when in detail view
   const assignmentWithCourse = id ? lecturerCourses.reduce<{assignment?: Assignment, course?: any}>((result, course) => {
     if (result.assignment) return result;
@@ -101,8 +173,8 @@ const Assignments = () => {
       return { 
         assignment: {
           ...foundAssignment,
-          courseCode: course.code,
-          courseTitle: course.title
+          courseCode: course.courseNumber,
+          courseTitle: course.courseName
         }, 
         course 
       };
@@ -146,7 +218,7 @@ const Assignments = () => {
     } else {
       setDayAssignments([]);
     }
-  }, [selectedDay, enhancedAssignments]);
+  }, [selectedDay, ]);
 
   const handleDaySelect = (day: Date | undefined) => {
     setSelectedDay(day);
@@ -629,7 +701,7 @@ const Assignments = () => {
                 </TabsList>
               </Tabs>
               <Link to="/lecturer/assignments/new">
-                <Button className="gap-2 bg-rubrix-blue hover:bg-rubrix-blue/90">
+                <Button className="gap-2 bg-rubrxix-blue hover:bg-rubrxix-blue/90">
                   <PlusCircle className="h-4 w-4" />
                   Create Assignment
                 </Button>
@@ -650,7 +722,7 @@ const Assignments = () => {
                 <CardContent>
                   <div className="flex items-center space-x-2">
                     <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-rubrix-blue" />
+                      <FileText className="h-5 w-5 text-rubrxix-blue" />
                     </div>
                     <div className="text-2xl font-bold">{allAssignments.length}</div>
                   </div>
@@ -739,7 +811,7 @@ const Assignments = () => {
                   <option value="all">All Courses</option>
                   {lecturerCourses.map(course => (
                     <option key={course.id} value={course.id}>
-                      {course.code}: {course.title}
+                      {course.courseNumber}: {course.courseName}
                     </option>
                   ))}
                 </select>
@@ -890,21 +962,22 @@ const Assignments = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {sortedAssignments.length > 0 ? (
-                        sortedAssignments.map((assignment) => {
-                          const course = lecturerCourses.find(c => c.id === assignment.courseId);
+                      {assignments.length > 0 ? (
+                        assignments.map((assignment) => {
+                          const course = lecturerCourses.find(c => c.id === assignment.courseId._id || c.id === assignment.courseId);
                           const isDue = new Date(assignment.dueDate) <= new Date();
-                          const submissionCount = assignment.submissions?.length || 0;
-                          const totalStudents = course?.enrolledStudents.length || 0;
+                          const submissionCount = assignment.submissionCount || 0;
+                          const totalStudents = course?.students?.length || 0;
                           const hasPlagiarism = assignment.submissions?.some(s => (s.plagiarismScore || 0) > 70);
                           const hasPerfectScore = assignment.submissions?.some(s => s.grade === assignment.totalPoints);
+                          const isPublished = assignment.published;
                           
                           return (
-                            <TableRow key={assignment.id}>
+                            <TableRow key={assignment._id || assignment.id}>
                               <TableCell>
                                 <div className="font-medium">{assignment.title}</div>
                                 <div className="text-sm text-muted-foreground">
-                                  {assignment.published ? 'Published' : 'Draft'}
+                                  {isPublished ? 'Published' : 'Draft'}
                                 </div>
                                 {hasPlagiarism && (
                                   <Badge variant="destructive" className="mt-1">
@@ -921,21 +994,29 @@ const Assignments = () => {
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   <Badge variant="outline" className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-200">
-                                    {assignment.courseCode}
+                                    {assignment.courseId?.courseNumber || course?.courseNumber}
                                   </Badge>
-                                  <span className="text-sm">{assignment.courseTitle}</span>
+                                  <span className="text-sm">
+                                    {assignment.courseId?.courseName || course?.courseName}
+                                  </span>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   <div className={`h-2 w-2 rounded-full ${isDue ? 'bg-red-500' : 'bg-green-500'}`} />
                                   <span>
-                                    {new Date(assignment.dueDate).toLocaleDateString()}
+                                    {new Date(assignment.dueDate).toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric'
+                                    })}
                                   </span>
                                 </div>
                               </TableCell>
                               <TableCell>
-                                {isDue ? (
+                                {!isPublished ? (
+                                  <Badge variant="outline" className="bg-gray-100 hover:bg-gray-100 text-gray-700 border-gray-200">Draft</Badge>
+                                ) : isDue ? (
                                   <Badge variant="outline" className="bg-red-50 hover:bg-red-50 text-red-700 border-red-200">Past Due</Badge>
                                 ) : (
                                   <Badge variant="outline" className="bg-green-50 hover:bg-green-50 text-green-700 border-green-200">Open</Badge>
@@ -945,6 +1026,11 @@ const Assignments = () => {
                                 <div className="flex items-center gap-2">
                                   <Users className="h-3.5 w-3.5 text-muted-foreground" />
                                   <span>{submissionCount}/{totalStudents}</span>
+                                  {totalStudents > 0 && (
+                                    <span className="text-xs text-muted-foreground">
+                                      ({Math.round((submissionCount / totalStudents) * 100)}%)
+                                    </span>
+                                  )}
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -956,21 +1042,37 @@ const Assignments = () => {
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-[160px]">
-                                    <DropdownMenuItem onClick={() => navigate(`/lecturer/assignments/${assignment.id}`)}>
+                                    <DropdownMenuItem 
+                                      onClick={() => navigate(`/lecturer/assignments/${assignment._id || assignment.id}`)}
+                                    >
+                                      <Eye className="h-4 w-4 mr-2" />
                                       View Details
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>Edit Assignment</DropdownMenuItem>
-                                    <DropdownMenuItem>View Submissions</DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      <Pencil className="h-4 w-4 mr-2" />
+                                      Edit Assignment
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      <FileText className="h-4 w-4 mr-2" />
+                                      View Submissions
+                                    </DropdownMenuItem>
                                     {hasPlagiarism && (
                                       <DropdownMenuItem 
                                         className="text-red-600"
-                                        onClick={() => handleViewPlagiarism(assignment.id)}
+                                        onClick={() => handleViewPlagiarism(assignment._id || assignment.id)}
                                       >
+                                        <Flag className="h-4 w-4 mr-2" />
                                         Review Plagiarism
                                       </DropdownMenuItem>
                                     )}
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                                    {/* <DropdownMenuItem 
+                                      className="text-destructive"
+                                      onClick={() => handleDeleteAssignment(assignment._id || assignment.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      Delete
+                                    </DropdownMenuItem> */}
                                   </DropdownMenuContent>
                                 </DropdownMenu>
                               </TableCell>
